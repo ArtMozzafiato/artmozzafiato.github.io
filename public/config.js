@@ -77,6 +77,7 @@ export const config = {
         'Contamos con 2 salas por franja de 1 hora. La hora queda sujeta a que haya sala disponible.',
       fotos: [
         { src: 'fotos/splash-1.jpg', alt: 'Familia feliz con sus cuadros en la sala neón de Art splash' },
+        { src: 'fotos/splash-2.jpg', alt: 'Sala de Art splash lista: lienzos y bombas de pintura neón' },
       ],
       precio: {
         entreSemana: 50000, // lunes a jueves
