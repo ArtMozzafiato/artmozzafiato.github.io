@@ -75,6 +75,9 @@ export const config = {
       soloEnPunto: true,
       notaSala:
         'Contamos con 2 salas por franja de 1 hora. La hora queda sujeta a que haya sala disponible.',
+      fotos: [
+        { src: 'fotos/splash-1.jpg', alt: 'Familia feliz con sus cuadros en la sala neón de Art splash' },
+      ],
       precio: {
         entreSemana: 50000, // lunes a jueves
         finDeSemana: 70000, // viernes, sábado, domingo y festivos
