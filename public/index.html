@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Mozzafiato Art · Cotiza tu cumpleaños</title>
+    <meta name="description" content="Cotiza en línea la celebración de cumpleaños en Mozzafiato Art: elige fecha, invitados y actividades." />
+    <meta name="theme-color" content="#e8505b" />
+
+    <!-- PWA -->
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="icon" href="icons/icon.svg" type="image/svg+xml" />
+    <link rel="icon" href="icons/icon-192.png" sizes="192x192" type="image/png" />
+    <!-- iPhone / iPad -->
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Mozzafiato" />
+
+    <!-- Vista previa al compartir el link por WhatsApp -->
+    <meta property="og:title" content="Mozzafiato Art · Cotiza tu cumpleaños" />
+    <meta property="og:description" content="Elige fecha, invitados y actividades y recibe tu cotización al instante." />
+    <meta property="og:image" content="icons/icon-512.png" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="hero">
+      <img class="hero__logo" src="icons/icon.svg" alt="" width="64" height="64" />
+      <div>
+        <h1 class="hero__title">Mozzafiato Art</h1>
+        <p class="hero__subtitle">Cotiza la celebración de cumpleaños 🎉</p>
+      </div>
+    </header>
+
+    <div id="install-banner" class="install" hidden>
+      <span id="install-text">Instala la app en tu celular</span>
+      <button id="install-btn" type="button" class="install__btn">Instalar</button>
+      <button id="install-close" type="button" class="install__close" aria-label="Cerrar">×</button>
+    </div>
+
+    <main>
+      <form id="quote-form" novalidate>
+        <section class="card">
+          <h2 class="card__title"><span class="step">1</span> Fecha y hora</h2>
+          <div class="grid-2">
+            <label class="field">
+              <span class="field__label">Fecha de la celebración</span>
+              <input type="date" id="date" name="date" required />
+            </label>
+            <label class="field">
+              <span class="field__label">Hora de inicio</span>
+              <select id="time" name="time" required>
+                <option value="">Elige una hora</option>
+              </select>
+            </label>
+          </div>
+          <p id="day-badge" class="badge" hidden></p>
+        </section>
+
+        <section class="card">
+          <h2 class="card__title"><span class="step">2</span> Número de personas</h2>
+          <div class="stepper">
+            <button type="button" class="stepper__btn" data-step="-1" aria-label="Quitar una persona">−</button>
+            <input type="number" id="people" name="people" inputmode="numeric" required aria-label="Número de personas" />
+            <button type="button" class="stepper__btn" data-step="1" aria-label="Agregar una persona">+</button>
+          </div>
+          <p class="hint">Cuenta a todas las personas que harán la actividad, incluido el cumpleañero.</p>
+        </section>
+
+        <section class="card">
+          <h2 class="card__title"><span class="step">3</span> Actividades</h2>
+          <p class="hint">Puedes elegir una o varias. El precio es por persona.</p>
+          <div id="activities" class="options"></div>
+          <p id="activities-error" class="error" hidden>Elige al menos una actividad.</p>
+        </section>
+
+        <section class="card" id="extras-section" hidden>
+          <h2 class="card__title"><span class="step">4</span> Extras <small>(opcional)</small></h2>
+          <div id="extras" class="options"></div>
+        </section>
+
+        <section class="card">
+          <h2 class="card__title"><span class="step" id="data-step">4</span> Tus datos</h2>
+          <div class="grid-2">
+            <label class="field">
+              <span class="field__label">Nombre del cumpleañero</span>
+              <input type="text" id="birthday-name" name="birthdayName" autocomplete="off" required />
+            </label>
+            <label class="field">
+              <span class="field__label">Edad que cumple</span>
+              <input type="number" id="birthday-age" name="birthdayAge" inputmode="numeric" min="1" max="120" required />
+            </label>
+            <label class="field">
+              <span class="field__label">Tu nombre</span>
+              <input type="text" id="contact-name" name="contactName" autocomplete="name" required />
+            </label>
+            <label class="field">
+              <span class="field__label">Tu celular</span>
+              <input type="tel" id="contact-phone" name="contactPhone" autocomplete="tel" inputmode="tel" required />
+            </label>
+          </div>
+          <label class="field">
+            <span class="field__label">Comentarios <small>(opcional)</small></span>
+            <textarea id="comments" name="comments" rows="3" placeholder="Temática, alergias, preguntas…"></textarea>
+          </label>
+        </section>
+
+        <section class="card summary" aria-live="polite">
+          <h2 class="card__title">Tu cotización</h2>
+          <div id="summary"></div>
+          <p class="fineprint" id="final-note"></p>
+        </section>
+      </form>
+    </main>
+
+    <footer class="bar">
+      <div class="bar__total">
+        <span class="bar__label">Total estimado</span>
+        <strong id="bar-total">$ 0</strong>
+      </div>
+      <button type="submit" form="quote-form" class="bar__btn">
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.2-.4.7-1.3a.5.5 0 0 0 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.8 11.9 11.9 0 0 0 4.6 4c1.7.7 2.4.8 3.2.7a2.8 2.8 0 0 0 1.8-1.3 2.3 2.3 0 0 0 .2-1.3c-.1-.1-.3-.2-.5-.3Z"/></svg>
+        Enviar por WhatsApp
+      </button>
+    </footer>
+
+    <script type="module" src="app.js"></script>
+  </body>
+</html>
