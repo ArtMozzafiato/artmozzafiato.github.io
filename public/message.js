@@ -1,4 +1,5 @@
 import { formatCOP, formatLongDate } from './pricing.js';
+import { formatDuration } from './schedule.js';
 
 // Texto que se envía por WhatsApp al negocio.
 export function buildMessage(data, quote, config) {
@@ -12,6 +13,7 @@ export function buildMessage(data, quote, config) {
     `📅 Fecha: ${formatLongDate(data.date)} (${dayType})`,
     `🕒 Hora: ${data.time}`,
     `👥 Personas: ${data.people}`,
+    `⏱️ Estancia aprox.: ${formatDuration(quote.stayMinutes)}`,
     '',
     '*Cotización:*',
     ...quote.lines.map((line) => {
@@ -25,7 +27,10 @@ export function buildMessage(data, quote, config) {
     `👤 ${data.contactName} · 📱 ${data.contactPhone}`,
   ];
 
-  if (data.comments) lines.push(`📝 ${data.comments}`);
+  if (quote.needsRoom) {
+    lines.push('', `🎨 Art splash a las ${data.time}: por favor confirmar sala disponible.`);
+  }
+  if (data.comments) lines.push('', `📝 ${data.comments}`);
   return lines.join('\n');
 }
 

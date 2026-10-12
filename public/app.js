@@ -1,6 +1,7 @@
 import { config } from './config.js';
 import { buildQuote, dayInfo, formatCOP, parseDate, unitPrice } from './pricing.js';
 import { buildMessage, whatsappUrl } from './message.js';
+import { formatDuration, startTimes } from './schedule.js';
 
 const $ = (selector) => document.querySelector(selector);
 
@@ -25,12 +26,6 @@ function setupDateLimits() {
   dateInput.max = toInputValue(max);
 }
 
-function setupTimes() {
-  for (const time of config.horarios) {
-    timeSelect.add(new Option(time, time));
-  }
-}
-
 function setupPeople() {
   const { minimo, maximo, porDefecto } = config.personas;
   Object.assign(peopleInput, { min: minimo, max: maximo, value: porDefecto });
@@ -50,7 +45,7 @@ function setupPeople() {
 const clampPeople = (n) =>
   Math.min(config.personas.maximo, Math.max(config.personas.minimo, Math.round(n) || config.personas.minimo));
 
-function optionTemplate({ name, value, emoji, title, description }) {
+function optionTemplate({ name, value, emoji, title, description, meta }) {
   const label = document.createElement('label');
   label.className = 'option';
   label.innerHTML = `
@@ -60,10 +55,12 @@ function optionTemplate({ name, value, emoji, title, description }) {
     <span class="option__body">
       <span class="option__name"></span>
       <span class="option__desc"></span>
+      ${meta ? '<span class="option__meta"></span>' : ''}
     </span>
     <span class="option__price" data-price-for="${value}"></span>`;
   label.querySelector('.option__name').textContent = title;
   label.querySelector('.option__desc').textContent = description ?? '';
+  if (meta) label.querySelector('.option__meta').textContent = meta;
   return label;
 }
 
@@ -76,6 +73,7 @@ function setupOptions() {
         emoji: activity.emoji,
         title: activity.nombre,
         description: activity.descripcion,
+        meta: `⏱ ${formatDuration(activity.duracionMinutos)}${activity.duracionLibre ? ' aprox. · tiempo libre' : ''}`,
       })
     );
   }
@@ -89,7 +87,7 @@ function setupOptions() {
           name: 'extra',
           value: extra.id,
           title: extra.nombre,
-          description: extra.tipo === 'porPersona' ? 'Por persona' : 'Valor único por reserva',
+          description: `${extra.descripcion ?? ''} ${extra.tipo === 'porPersona' ? 'Por persona.' : 'Valor único por reserva.'}`.trim(),
         })
       );
     }
@@ -126,12 +124,27 @@ function renderDayBadge(date) {
     : `${info.dayName[0].toUpperCase()}${info.dayName.slice(1)} · ${info.rateLabel}`;
 }
 
+// Las horas dependen de las actividades: Art splash solo en punto y todo
+// debe terminar antes del cierre.
+function renderTimes(state) {
+  const previous = timeSelect.value;
+  const times = startTimes(state.activityIds, config);
+  timeSelect.replaceChildren(new Option('Elige una hora', ''));
+  for (const { value, label } of times) timeSelect.add(new Option(label, value));
+  if (times.some((t) => t.value === previous)) timeSelect.value = previous;
+
+  const hint = $('#time-hint');
+  const splash = config.actividades.find((a) => a.soloEnPunto && state.activityIds.includes(a.id));
+  hint.hidden = !splash;
+  if (splash) hint.textContent = `${splash.nombre} empieza en punto. ${splash.notaSala}`;
+}
+
 function renderOptionPrices(state) {
   const info = state.date ? dayInfo(state.date, config) : { isWeekend: false };
   for (const activity of config.actividades) {
     const el = activitiesBox.querySelector(`[data-price-for="${activity.id}"]`);
     const { amount, note } = unitPrice(activity, state.people, info);
-    const prefix = activity.aproximado ? 'Desde ' : '';
+    const prefix = activity.aproximado ? '<small>desde</small>' : '';
     let detail = activity.aproximado ? 'aprox. c/u' : 'por persona';
     if (typeof activity.precio === 'object' && !state.date) detail = 'lun a jue · elige fecha';
     else if (note && note.startsWith('Oferta')) detail = '¡Oferta grupo!';
@@ -170,6 +183,18 @@ function renderSummary(state, quote) {
     total.className = 'summary__total';
     total.innerHTML = `<span>Total${quote.approximate ? ' aprox.' : ''}</span><span>${formatCOP(quote.total)}</span>`;
     summary.append(total);
+
+    const stay = document.createElement('p');
+    stay.className = 'summary__stay';
+    stay.innerHTML = `<span>Estancia promedio aprox.</span><strong>${formatDuration(quote.stayMinutes)}</strong>`;
+    summary.append(stay);
+
+    if (quote.needsRoom) {
+      const room = document.createElement('p');
+      room.className = 'fineprint';
+      room.textContent = '🎨 Art splash: verificaremos que haya sala disponible a la hora elegida.';
+      summary.append(room);
+    }
     if (!state.date) {
       const warn = document.createElement('p');
       warn.className = 'fineprint';
@@ -185,6 +210,7 @@ function render() {
   const state = readState();
   const quote = buildQuote(state, config);
   renderDayBadge(state.date);
+  renderTimes(state);
   renderOptionPrices(state);
   renderSummary(state, quote);
   $('#activities-error').hidden = true;
@@ -234,7 +260,7 @@ form.addEventListener('submit', (event) => {
   const text = buildMessage(
     {
       ...state,
-      time: timeSelect.value,
+      time: timeSelect.selectedOptions[0].text,
       birthdayName: $('#birthday-name').value.trim(),
       birthdayAge: $('#birthday-age').value.trim(),
       contactName: $('#contact-name').value.trim(),
@@ -301,7 +327,6 @@ if ('serviceWorker' in navigator) {
 }
 
 setupDateLimits();
-setupTimes();
 setupPeople();
 setupOptions();
 setupInstall();

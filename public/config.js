@@ -1,5 +1,5 @@
 // ============================================================
-//  CONFIGURACIÓN DE MOZZAFIATO ART
+//  CONFIGURACIÓN DE MOZZAFIATO PIZZERÍA
 //  Este es el único archivo que necesitas editar para cambiar
 //  precios, actividades, horarios, extras o el número de WhatsApp.
 //  Los precios van en pesos colombianos, sin puntos (50000, no 50.000).
@@ -7,7 +7,7 @@
 
 export const config = {
   negocio: {
-    nombre: 'Mozzafiato Art',
+    nombre: 'Mozzafiato Pizzería',
     // Número de WhatsApp con indicativo de país, sin + ni espacios.
     // Ejemplo: 573001234567
     whatsapp: '573169150000',
@@ -30,14 +30,14 @@ export const config = {
     porDefecto: 8,
   },
 
-  // Horas de inicio que puede elegir el cliente. El restaurante abre de
-  // 1:00 p. m. a 10:30 p. m.; la última hora de inicio deja 2 horas de actividad.
-  horarios: [
-    '1:00 p. m.', '1:30 p. m.', '2:00 p. m.', '2:30 p. m.',
-    '3:00 p. m.', '3:30 p. m.', '4:00 p. m.', '4:30 p. m.',
-    '5:00 p. m.', '5:30 p. m.', '6:00 p. m.', '6:30 p. m.',
-    '7:00 p. m.', '7:30 p. m.', '8:00 p. m.', '8:30 p. m.',
-  ],
+  // Horario del restaurante (formato 24 h). Las horas de inicio se generan
+  // solas cada "intervaloMinutos", y la última es la que alcanza a terminar
+  // todas las actividades elegidas antes del cierre.
+  horario: {
+    apertura: '13:00',
+    cierre: '22:30',
+    intervaloMinutos: 30,
+  },
 
   actividades: [
     {
@@ -45,13 +45,20 @@ export const config = {
       nombre: 'Arma tu pizza',
       emoji: '🍕',
       descripcion: 'Cada invitado prepara y decora su propia pizza.',
+      duracionMinutos: 25, // máximo armando
       precio: 30000,
     },
     {
       id: 'splash',
       nombre: 'Art splash',
       emoji: '🎨',
-      descripcion: 'Pintura libre y salpicada, ¡a ensuciarse con arte!',
+      descripcion: 'Pintura libre y salpicada, ¡a ensuciarse con arte! Todos entran juntos.',
+      duracionMinutos: 45,
+      // Se organiza por sala: empieza siempre en punto (1:00, 2:00…) y los
+      // 15 minutos restantes se usan para preparar la sala.
+      soloEnPunto: true,
+      notaSala:
+        'Contamos con 2 salas por franja de 1 hora. La hora queda sujeta a que haya sala disponible.',
       precio: {
         entreSemana: 50000, // lunes a jueves
         finDeSemana: 70000, // viernes, sábado, domingo y festivos
@@ -64,13 +71,16 @@ export const config = {
       nombre: 'Art slime',
       emoji: '🫧',
       descripcion: 'Cada niño crea su slime con 2 texturas.',
+      duracionMinutos: 45,
       precio: 50000,
     },
     {
       id: 'ceramica',
       nombre: 'Art cerámica',
       emoji: '🏺',
-      descripcion: 'Pintura de piezas de cerámica.',
+      descripcion: 'Pintura de piezas de cerámica, a su ritmo.',
+      duracionMinutos: 60, // tiempo libre; 1 hora en promedio
+      duracionLibre: true,
       precio: 25000,
       aproximado: true,
       nota: 'Valor promedio: el precio final depende de la pieza elegida.',
@@ -79,13 +89,18 @@ export const config = {
 
   // Extras opcionales. tipo: 'porPersona' o 'unico' (un solo cobro por reserva).
   // Solo se muestran los que tengan activo: true.
-  // ⚠️ PENDIENTE: definir extras reales y sus precios.
   extras: [
-    { id: 'decoracion', nombre: 'Decoración temática', precio: 0, tipo: 'unico', activo: false },
-    { id: 'refrigerio', nombre: 'Refrigerio', precio: 0, tipo: 'porPersona', activo: false },
-    { id: 'recuerdos', nombre: 'Recuerdos para invitados', precio: 0, tipo: 'porPersona', activo: false },
+    {
+      id: 'pablo',
+      nombre: 'Decoración Pablo',
+      descripcion:
+        'Nuestro personaje Pablo llega a la mesa con estructura de neón, dos velas volcán, deditos de queso y una bebida.',
+      precio: 35000,
+      tipo: 'unico',
+      activo: true,
+    },
   ],
 
   notaFinal:
-    'Esta es una cotización de referencia. La reserva queda confirmada cuando Mozzafiato Art confirme disponibilidad por WhatsApp.',
+    'Esta es una cotización de referencia. La reserva queda confirmada cuando Mozzafiato Pizzería confirme disponibilidad por WhatsApp.',
 };

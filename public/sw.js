@@ -1,7 +1,7 @@
 // Service worker: permite abrir la app sin conexión.
 // Usa "red primero" para que los cambios de precios lleguen de inmediato,
 // y la copia guardada solo cuando no hay internet.
-const CACHE = 'mozzafiato-v3';
+const CACHE = 'mozzafiato-v4';
 const ASSETS = [
   './',
   'index.html',
@@ -11,6 +11,7 @@ const ASSETS = [
   'pricing.js',
   'holidays.js',
   'message.js',
+  'schedule.js',
   'manifest.webmanifest',
   'brand/logo.png',
   'icons/favicon.png',

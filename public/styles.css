@@ -225,8 +225,9 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--g
 .option:has(input:focus-visible) { outline: 2px solid var(--gold); outline-offset: 2px; }
 .option__emoji { font-size: 1.6rem; line-height: 1; }
 .option__body { flex: 1; min-width: 0; }
-.option__name { font-weight: 800; display: block; overflow-wrap: anywhere; text-transform: uppercase; letter-spacing: 0.03em; color: var(--white); }
+.option__name { font-weight: 800; display: block; overflow-wrap: break-word; text-transform: uppercase; letter-spacing: 0.03em; color: var(--white); }
 .option__desc { color: var(--muted); font-size: 0.86rem; display: block; margin-top: 2px; }
+.option__meta { display: block; margin-top: 6px; font-size: 0.78rem; font-weight: 700; color: var(--gold); }
 .option__price { font-weight: 800; color: var(--gold); white-space: nowrap; text-align: right; }
 .option__price small { display: block; white-space: normal; max-width: 92px; margin-left: auto; font-weight: 600; color: var(--muted); font-size: 0.72rem; }
 .option__check {
@@ -266,6 +267,17 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--g
   text-transform: uppercase;
 }
 .summary__total span:last-child { color: var(--gold); }
+.summary__stay {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 12px 0 0;
+  padding: 10px 12px;
+  border: 1px dashed var(--gold);
+  color: var(--text);
+  font-size: 0.9rem;
+}
+.summary__stay strong { color: var(--gold); white-space: nowrap; }
 .summary__empty { color: var(--muted); margin: 0; }
 .fineprint { color: var(--muted); font-size: 0.8rem; margin: 14px 0 0; }
 
