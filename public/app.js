@@ -2,6 +2,7 @@ import { config } from './config.js';
 import { buildQuote, dayInfo, formatCOP, parseDate, unitPrice } from './pricing.js';
 import { buildMessage, whatsappUrl } from './message.js';
 import { formatDuration, startTimes } from './schedule.js';
+import { createCarousel } from './gallery.js';
 
 const $ = (selector) => document.querySelector(selector);
 
@@ -45,7 +46,9 @@ function setupPeople() {
 const clampPeople = (n) =>
   Math.min(config.personas.maximo, Math.max(config.personas.minimo, Math.round(n) || config.personas.minimo));
 
-function optionTemplate({ name, value, emoji, title, description, meta }) {
+function optionTemplate({ name, value, emoji, title, description, meta, photos }) {
+  const card = document.createElement('div');
+  card.className = 'option-card';
   const label = document.createElement('label');
   label.className = 'option';
   label.innerHTML = `
@@ -61,7 +64,20 @@ function optionTemplate({ name, value, emoji, title, description, meta }) {
   label.querySelector('.option__name').textContent = title;
   label.querySelector('.option__desc').textContent = description ?? '';
   if (meta) label.querySelector('.option__meta').textContent = meta;
-  return label;
+  card.append(label);
+  // El carrusel va fuera del <label> para que deslizar no marque la casilla.
+  if (photos?.length) card.append(createCarousel(photos, { label: `Fotos de ${title}` }));
+  return card;
+}
+
+function setupStory() {
+  const { historia } = config;
+  if (!historia?.fotos?.length) return;
+  const section = $('#story');
+  section.hidden = false;
+  section.querySelector('.story__title').textContent = historia.titulo;
+  section.querySelector('.story__subtitle').textContent = historia.subtitulo ?? '';
+  section.append(createCarousel(historia.fotos, { variant: 'story', label: historia.titulo }));
 }
 
 function setupOptions() {
@@ -74,6 +90,7 @@ function setupOptions() {
         title: activity.nombre,
         description: activity.descripcion,
         meta: `⏱ ${formatDuration(activity.duracionMinutos)}${activity.duracionLibre ? ' aprox. · tiempo libre' : ''}`,
+        photos: activity.fotos,
       })
     );
   }
@@ -88,6 +105,7 @@ function setupOptions() {
           value: extra.id,
           title: extra.nombre,
           description: `${extra.descripcion ?? ''} ${extra.tipo === 'porPersona' ? 'Por persona.' : 'Valor único por reserva.'}`.trim(),
+          photos: extra.fotos,
         })
       );
     }
@@ -153,8 +171,8 @@ function renderOptionPrices(state) {
   for (const extra of activeExtras) {
     extrasBox.querySelector(`[data-price-for="${extra.id}"]`).textContent = formatCOP(extra.precio);
   }
-  form.querySelectorAll('.option').forEach((option) => {
-    option.classList.toggle('is-checked', option.querySelector('input').checked);
+  form.querySelectorAll('.option-card').forEach((card) => {
+    card.classList.toggle('is-checked', card.querySelector('input').checked);
   });
 }
 
@@ -328,6 +346,7 @@ if ('serviceWorker' in navigator) {
 
 setupDateLimits();
 setupPeople();
+setupStory();
 setupOptions();
 setupInstall();
 render();

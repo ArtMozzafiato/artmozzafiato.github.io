@@ -39,6 +39,18 @@ export const config = {
     intervaloMinutos: 30,
   },
 
+  // Carrusel que se muestra arriba, apenas el cliente abre el link.
+  // Las fotos van en la carpeta public/fotos (verticales 4:5, 900×1125).
+  historia: {
+    titulo: 'Así se celebra en Mozzafiato',
+    subtitulo: 'El cumpleaños de Jero',
+    fotos: [
+      { src: 'fotos/historia-1.jpg', alt: 'Grupo de niños felices con delantales Art en el cumpleaños de Jero' },
+      { src: 'fotos/historia-2.jpg', alt: 'Niño pintando una alcancía de cerámica' },
+      { src: 'fotos/historia-3.jpg', alt: 'Jero junto a su torta de Sonic' },
+    ],
+  },
+
   actividades: [
     {
       id: 'pizza',
@@ -72,6 +84,11 @@ export const config = {
       emoji: '🫧',
       descripcion: 'Cada niño crea su slime con 2 texturas.',
       duracionMinutos: 45,
+      fotos: [
+        { src: 'fotos/slime-1.jpg', alt: 'Niño mezclando su slime azul' },
+        { src: 'fotos/slime-2.jpg', alt: 'Niña amasando slime sobre un bowl' },
+        { src: 'fotos/slime-3.jpg', alt: 'Niños jugando con slime de colores en la sala neón' },
+      ],
       precio: 50000,
     },
     {
@@ -81,6 +98,10 @@ export const config = {
       descripcion: 'Pintura de piezas de cerámica, a su ritmo.',
       duracionMinutos: 60, // tiempo libre; 1 hora en promedio
       duracionLibre: true,
+      fotos: [
+        { src: 'fotos/ceramica-1.jpg', alt: 'Piezas de cerámica pintadas por nuestros clientes' },
+        { src: 'fotos/ceramica-2.jpg', alt: 'Estantería con piezas de cerámica para escoger' },
+      ],
       precio: 25000,
       aproximado: true,
       nota: 'Valor promedio: el precio final depende de la pieza elegida.',
@@ -98,6 +119,7 @@ export const config = {
       precio: 35000,
       tipo: 'unico',
       activo: true,
+      fotos: [{ src: 'fotos/pablo-1.jpg', alt: 'Pablo de neón con velas volcán, deditos de queso y bebida' }],
     },
   ],
 

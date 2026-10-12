@@ -36,6 +36,15 @@ Todo está en **un solo archivo**: [`public/config.js`](public/config.js).
 Se puede editar directo en GitHub (ícono del lápiz) y al guardar en `main` la app
 se publica sola en uno o dos minutos.
 
+## Fotos
+
+- **Historia** (arriba de todo): `historia.fotos` en `public/config.js`.
+- **Por actividad o extra**: la lista `fotos` de cada uno. Si no tiene fotos, no se
+  muestra carrusel.
+- Las fotos van en `public/fotos/`, verticales 4:5 (900×1125 px, JPG de ~100–200 KB)
+  para que carguen rápido con datos móviles. Al tocarlas se ven en grande.
+- Usa solo fotos de niños con autorización de sus padres (Ley 1581 de 2012).
+
 ## Línea gráfica
 
 Sigue la identidad de Mozzafiato: fondo negro con textura, dorado del logo
