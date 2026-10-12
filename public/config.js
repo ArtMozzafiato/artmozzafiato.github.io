@@ -10,7 +10,7 @@ export const config = {
     nombre: 'Mozzafiato Art',
     // Número de WhatsApp con indicativo de país, sin + ni espacios.
     // Ejemplo: 573001234567
-    whatsapp: '57XXXXXXXXXX', // ⚠️ PENDIENTE: poner el número real
+    whatsapp: '573169150000',
   },
 
   // Días que se cobran con tarifa de fin de semana (0 = domingo … 6 = sábado).
@@ -30,8 +30,14 @@ export const config = {
     porDefecto: 8,
   },
 
-  // ⚠️ PENDIENTE: confirmar los horarios reales de inicio.
-  horarios: ['10:00 a. m.', '12:00 m.', '2:00 p. m.', '4:00 p. m.'],
+  // Horas de inicio que puede elegir el cliente. El restaurante abre de
+  // 1:00 p. m. a 10:30 p. m.; la última hora de inicio deja 2 horas de actividad.
+  horarios: [
+    '1:00 p. m.', '1:30 p. m.', '2:00 p. m.', '2:30 p. m.',
+    '3:00 p. m.', '3:30 p. m.', '4:00 p. m.', '4:30 p. m.',
+    '5:00 p. m.', '5:30 p. m.', '6:00 p. m.', '6:30 p. m.',
+    '7:00 p. m.', '7:30 p. m.', '8:00 p. m.', '8:30 p. m.',
+  ],
 
   actividades: [
     {
