@@ -36,8 +36,9 @@ export function lastBookableKey(reservas, now) {
   return dateKey(new Date(today.getFullYear(), today.getMonth(), today.getDate() + reservas.diasMaximos));
 }
 
-// Horas de un día, con las plazas libres si se conoce la ocupación
-// (ocupados = { '14:00': 1 }). Se quitan las horas pasadas o llenas.
+// Horas de un día y, si se conoce la ocupación (ocupados = { '14:00': 1 }),
+// cuántos salones quedan. Las horas llenas se devuelven con libres = 0.
+// Cada reserva ocupa un salón completo, sin importar cuántas personas sean.
 export function slotsFor(activity, key, reservas, now, ocupados = null) {
   const date = parseDate(key);
   if (!date) return [];
@@ -52,8 +53,8 @@ export function slotsFor(activity, key, reservas, now, ocupados = null) {
       value: hora,
       label: timeLabel(hora),
       libres: ocupados ? Math.max(0, activity.cupos - (ocupados[hora] ?? 0)) : null,
-    }))
-    .filter((slot) => slot.libres !== 0);
+      cupos: activity.cupos,
+    }));
 }
 
 export const isDayBookable = (activity, key, reservas, now) =>

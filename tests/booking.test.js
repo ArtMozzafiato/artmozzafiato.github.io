@@ -46,14 +46,17 @@ test('horas del día: 2:00 a 8:00 p. m. en punto', () => {
   const slots = slotsFor(splash, '2026-10-13', reservas, now);
   assert.deepEqual(slots.map((s) => s.value), ['14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00']);
   assert.equal(slots[0].label, '2:00 p. m.');
-  assert.equal(slots[0].libres, null); // sin hoja de Google no se conocen los cupos
+  assert.equal(slots[0].libres, null); // sin hoja de Google no se conocen los salones
 });
 
-test('plazas libres y horas llenas', () => {
+test('salones: cada reserva ocupa un salón, 2 salones por hora', () => {
+  // 14:00: una pareja y un grupo de 15 → 2/2 lleno. 15:00: una reserva → 1/2.
   const slots = slotsFor(splash, '2026-10-13', reservas, now, { '14:00': 2, '15:00': 1 });
-  assert.equal(slots[0].value, '15:00');
-  assert.equal(slots[0].libres, 1);
-  assert.equal(slots[1].libres, 2);
+  assert.equal(slots[0].value, '14:00');
+  assert.equal(slots[0].libres, 0);
+  assert.equal(slots[1].libres, 1);
+  assert.equal(slots[2].libres, 2);
+  assert.equal(slots[0].cupos, 2);
 });
 
 test('mismo día: solo horas con la anticipación mínima', () => {

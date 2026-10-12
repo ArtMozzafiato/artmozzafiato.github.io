@@ -1,11 +1,11 @@
 /**
  * Mozzafiato · Reservas en Google Sheets (opcional).
  *
- * Guarda cada reserva en la hoja "Reservas" y le dice a la app cuántas
- * plazas quedan libres en cada hora. Instrucciones en apps-script/README.md.
+ * Guarda cada reserva en la hoja "Reservas" y le dice a la app cuántos
+ * salones quedan en cada hora (cada reserva ocupa un salón completo). Instrucciones en apps-script/README.md.
  */
 
-// Reservas máximas por hora para cada actividad (igual que "cupos" en config.js).
+// Salones por hora de cada actividad (igual que "cupos" en config.js).
 const CUPOS = { splash: 2, slime: 2, ceramica: 2 };
 
 // Correo que recibe un aviso por cada reserva nueva. Vacío = sin aviso.

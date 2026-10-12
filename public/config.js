@@ -164,8 +164,8 @@ export const config = {
     },
 
     // Opcional: dirección de la hoja de Google (Apps Script) que guarda las
-    // reservas y muestra las "plazas libres". Ver apps-script/README.md.
-    // Vacío = no se controlan cupos; el restaurante confirma por WhatsApp.
+    // reservas y muestra cuántos salones quedan por hora. Ver apps-script/README.md.
+    // Vacío = no se controlan los salones; el restaurante confirma por WhatsApp.
     apiUrl: '',
 
     actividades: [
@@ -176,7 +176,8 @@ export const config = {
         titulo: 'ArtSplash - Laureles "Un parche diferente"',
         emoji: '🎨',
         duracionMinutos: 45,
-        // Horas de inicio (24 h). Cada hora tiene "cupos" reservas (salas).
+        // Horas de inicio (24 h). "cupos" = salones por hora: cada reserva
+        // ocupa un salón completo, sea de 2 o de 15 personas.
         horas: ['14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00'],
         cupos: 2,
         // Días de la semana en que se ofrece (0 = domingo … 6 = sábado).

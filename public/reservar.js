@@ -220,7 +220,7 @@ function renderSlots(loadingText = null) {
     return;
   }
   const slots = slotsFor(state.activity, state.date, reservas, now(), state.ocupados);
-  msg.hidden = slots.length > 0;
+  msg.hidden = slots.some((slot) => slot.libres !== 0);
   msg.textContent = 'No quedan horas disponibles este día. Elige otro día.';
 
   for (const slot of slots) {
@@ -234,7 +234,15 @@ function renderSlots(loadingText = null) {
     pick.innerHTML = `<strong></strong>${slot.libres !== null ? '<small></small>' : ''}`;
     pick.querySelector('strong').textContent = slot.label;
     if (slot.libres !== null) {
-      pick.querySelector('small').textContent = `${slot.libres} ${slot.libres === 1 ? 'plaza libre' : 'plazas libres'}`;
+      const ocupados = slot.cupos - slot.libres;
+      pick.querySelector('small').textContent =
+        slot.libres === 0
+          ? `Lleno · ${ocupados}/${slot.cupos} salones`
+          : `${ocupados}/${slot.cupos} salones reservados`;
+    }
+    if (slot.libres === 0) {
+      pick.disabled = true;
+      row.classList.add('is-full');
     }
     pick.addEventListener('click', () => {
       state.time = slot.value;

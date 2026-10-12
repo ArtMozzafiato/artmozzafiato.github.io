@@ -35,12 +35,13 @@ Links para Instagram (abren directo el calendario de cada actividad):
 - `https://serlifecol-dot.github.io/artmozzafiato/reservar.html?actividad=ceramica`
 - `https://serlifecol-dot.github.io/artmozzafiato/reservar.html` (todas)
 
-Textos, precios, horas, cupos, datos de pago y condiciones están en
+Textos, precios, horas, salones, datos de pago y condiciones están en
 `reservas` dentro de [`public/config.js`](public/config.js). Los viernes,
 sábados, domingos y festivos de Colombia se cobran con tarifa de fin de semana.
 
-**Plazas libres (opcional):** para que la app muestre "2 plazas libres" y no
-deje reservar una hora llena, conecta una hoja de Google siguiendo
+**Salones (opcional):** Art Splash tiene 2 salones por hora y cada reserva ocupa
+un salón completo (una pareja o 15 personas cuentan igual). Para que la app
+muestre "1/2 salones reservados" y marque "Lleno" cuando estén los dos, conecta una hoja de Google siguiendo
 [`apps-script/README.md`](apps-script/README.md). Sin eso, se muestran todas
 las horas y el restaurante confirma por WhatsApp.
 

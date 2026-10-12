@@ -713,3 +713,5 @@ label.question .question__text { display: block; }
 .bar__btn:disabled { opacity: 0.6; }
 .crosslink--top { margin: 0 0 16px; }
 .bar[hidden] { display: none; }
+.slot.is-full .slot__time { border-color: var(--line); color: #6d6860; cursor: not-allowed; text-decoration: none; }
+.slot.is-full .slot__time small { color: #e0574f; font-weight: 700; }
