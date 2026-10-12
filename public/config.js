@@ -133,4 +133,168 @@ export const config = {
 
   notaFinal:
     'Esta es una cotización de referencia. La reserva queda confirmada cuando Mozzafiato Pizzería confirme disponibilidad por WhatsApp.',
+
+  // ============================================================
+  //  RESERVAS DE ACTIVIDADES (página reservar.html, estilo Calendly)
+  // ============================================================
+  reservas: {
+    sede: {
+      nombre: 'Laureles',
+      direccion: 'Cl. 42 #74 - 25, Laureles - Medellín',
+      mapa: 'https://www.google.com/maps/search/?api=1&query=Cl.+42+%2374-25+Laureles+Medell%C3%ADn',
+    },
+    zonaHoraria: 'America/Bogota',
+
+    // Hasta cuántos días hacia adelante se puede reservar.
+    diasMaximos: 60,
+    // Para reservas del mismo día: minutos mínimos antes de la hora de inicio.
+    anticipacionMinimaMinutos: 60,
+    // Días en que no se atiende (formato AAAA-MM-DD).
+    fechasCerradas: [],
+
+    personas: { minimo: 1, maximo: 30 },
+
+    abonoPorcentaje: 50,
+    pago: {
+      titular: 'Daniela Márquez',
+      documento: 'CC 1037609217',
+      banco: 'Bancolombia',
+      tipoCuenta: 'Cuenta de ahorros',
+      numero: '01913351378',
+    },
+
+    // Opcional: dirección de la hoja de Google (Apps Script) que guarda las
+    // reservas y muestra las "plazas libres". Ver apps-script/README.md.
+    // Vacío = no se controlan cupos; el restaurante confirma por WhatsApp.
+    apiUrl: '',
+
+    actividades: [
+      {
+        id: 'splash',
+        activo: true,
+        nombre: 'Art Splash',
+        titulo: 'ArtSplash - Laureles "Un parche diferente"',
+        emoji: '🎨',
+        duracionMinutos: 45,
+        // Horas de inicio (24 h). Cada hora tiene "cupos" reservas (salas).
+        horas: ['14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00'],
+        cupos: 2,
+        // Días de la semana en que se ofrece (0 = domingo … 6 = sábado).
+        dias: [0, 1, 2, 3, 4, 5, 6],
+        precio: { entreSemana: 50000, finDeSemana: 70000 }, // fin de semana = vie, sáb, dom y festivos
+        intro:
+          '🎨✨ ¡Llegó Art-Splash a ArtMozzafiato! ✨\n🎨 ¿Estás listo para liberar tu creatividad y vivir una experiencia artística fuera de lo común? 🎟️',
+        fotos: [
+          { src: 'fotos/splash-1.jpg', alt: 'Familia feliz con sus cuadros en la sala neón de Art splash' },
+          { src: 'fotos/splash-2.jpg', alt: 'Sala de Art splash lista: lienzos y bombas de pintura neón' },
+        ],
+      },
+      {
+        id: 'slime',
+        activo: true,
+        nombre: 'Art Slime',
+        titulo: 'Art Slime - Laureles',
+        emoji: '🫧',
+        duracionMinutos: 45,
+        horas: ['14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00'],
+        cupos: 2,
+        dias: [0, 1, 2, 3, 4, 5, 6],
+        precio: 50000,
+        intro: '🫧 Crea tu propio slime con 2 texturas. ¡Un parche diferente para todas las edades!',
+        fotos: [
+          { src: 'fotos/slime-1.jpg', alt: 'Niño mezclando su slime azul' },
+          { src: 'fotos/slime-3.jpg', alt: 'Niños jugando con slime de colores en la sala neón' },
+        ],
+      },
+      {
+        id: 'ceramica',
+        activo: true,
+        nombre: 'Art Cerámica',
+        titulo: 'Art Cerámica - Laureles',
+        emoji: '🏺',
+        duracionMinutos: 60,
+        horas: ['14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00'],
+        cupos: 2,
+        dias: [0, 1, 2, 3, 4, 5, 6],
+        precio: 25000,
+        aproximado: true, // el valor final depende de la pieza elegida
+        intro: '🏺 Pinta tu pieza de cerámica a tu ritmo. El valor final depende de la pieza que elijas.',
+        fotos: [
+          { src: 'fotos/ceramica-1.jpg', alt: 'Piezas de cerámica pintadas por nuestros clientes' },
+          { src: 'fotos/ceramica-2.jpg', alt: 'Estantería con piezas de cerámica para escoger' },
+        ],
+      },
+    ],
+
+    // Preguntas obligatorias del formulario, en orden (como en Calendly).
+    // {precios}, {abono}, {pago} y {whatsapp} se reemplazan solos.
+    condiciones: [
+      { id: 'precio', texto: 'Precio de la actividad por persona: {precios}', opcion: 'Acepto el valor de mi reserva.' },
+      {
+        id: 'abono',
+        texto:
+          '💸 Confirmación de reserva: para confirmar, realiza el {abono} del pago a: {pago}. Envía el soporte con nombre y fecha al WhatsApp {whatsapp}.',
+        opcion: 'Confirmo lectura',
+      },
+      {
+        id: 'llegada',
+        texto:
+          '⏰ Debes llegar 15 min antes. La reserva se confirma solo tras enviar el comprobante de pago. Usa ropa para ensuciarte. IMPORTANTE: esta reserva es para iniciar la actividad puntual. ¿Estás de acuerdo?',
+        opcion: 'Acepto términos',
+      },
+      {
+        id: 'tolerancia',
+        texto:
+          '📍 Si han pasado 10 min desde tu hora de inicio y no has llegado, tu reserva se cancela. Solo si la siguiente hora está libre, podrías continuar. ¿Aceptas estas condiciones?',
+        opcion: 'Acepto términos y condiciones',
+      },
+      {
+        id: 'menores',
+        texto:
+          '👧👦 ¿Algún participante tiene entre 5 y 12 años? Recuerda que deben asistir con un adulto responsable que también tenga reserva. El menor debe estar acompañado durante toda la experiencia.',
+        respuestas: ['Ninguno es menor de edad.', 'Asisten menores y acepto responsabilidad'],
+      },
+      {
+        id: 'cancelacion',
+        texto:
+          '❌ Si no puedes asistir, debes avisar con mínimo 24 h de anticipación para reprogramar y liberar la sala. Si no lo haces, se cancela tu reserva sin devolución del dinero. ¿Estás de acuerdo?',
+        opcion: 'Acepto los términos de cancelación',
+      },
+    ],
+    preguntaEspecial:
+      '🎉 ¿Hay algo especial que debamos saber para hacer tu experiencia inolvidable? (Cumpleaños, propuesta, sorpresa, etc.) ¡Cuéntanos aquí y lo tendremos en cuenta!',
+    aceptacionFinal: {
+      texto:
+        '🤝 ¿Aceptas todos los términos y condiciones mencionados en este formulario? Al realizar tu reserva aceptas las políticas de puntualidad, cancelación, uso de materiales y participación.',
+      opcion: 'Acepto términos y condiciones de mi reserva.',
+    },
+
+    terminos: {
+      titulo: 'TÉRMINOS Y CONDICIONES DE PARTICIPACIÓN',
+      intro:
+        'Al reservar y participar en nuestra actividad, el participante acepta los siguientes términos y condiciones:',
+      puntos: [
+        [
+          'Responsabilidad sobre el uso de materiales',
+          'Durante la actividad se utilizan pinturas, pinceles y otros materiales artísticos que pueden manchar la ropa, la piel o el cabello. Recomendamos usar ropa cómoda y que pueda ensuciarse, así como tomar las precauciones necesarias para proteger sus pertenencias.',
+        ],
+        [
+          'Exoneración de responsabilidad por daños o manchas',
+          'La empresa no se hace responsable por daños, manchas o deterioro en prendas de vestir, accesorios, calzado, cabello o cualquier otro bien personal ocasionado durante el desarrollo de la actividad.',
+        ],
+        [
+          'Condiciones de salud y alergias',
+          'El participante declara que no presenta alergias conocidas a los componentes de las pinturas o materiales utilizados. En caso de presentar alguna reacción alérgica o molestia, la empresa no asumirá responsabilidad alguna por consecuencias médicas derivadas del contacto con dichos productos.',
+        ],
+        [
+          'Uso de materiales bajo supervisión',
+          'Todos los materiales deberán usarse de manera responsable. Cualquier daño ocasionado por mal uso será responsabilidad del participante.',
+        ],
+        [
+          'Aceptación de términos',
+          'Al agendar la cita o participar en la actividad, el participante manifiesta haber leído y aceptado estos términos y condiciones, liberando a la empresa y a sus colaboradores de cualquier tipo de reclamación por los motivos anteriormente mencionados.',
+        ],
+      ],
+    },
+  },
 };

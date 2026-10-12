@@ -1,7 +1,7 @@
 // Service worker: permite abrir la app sin conexión.
 // Usa "red primero" para que los cambios de precios lleguen de inmediato,
 // y la copia guardada solo cuando no hay internet.
-const CACHE = 'mozzafiato-v8';
+const CACHE = 'mozzafiato-v9';
 const ASSETS = [
   './',
   'index.html',
@@ -13,6 +13,10 @@ const ASSETS = [
   'message.js',
   'schedule.js',
   'gallery.js',
+  'pwa.js',
+  'reservar.html',
+  'reservar.js',
+  'booking.js',
   'manifest.webmanifest',
   'brand/logo.png',
   'icons/favicon.png',
@@ -37,12 +41,13 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
   const { request } = event;
-  if (request.method !== 'GET') return;
+  // La hoja de reservas (Google) y otros sitios van directo, sin caché.
+  if (request.method !== 'GET' || new URL(request.url).origin !== self.location.origin) return;
 
   event.respondWith(
     fetch(request)
       .then((response) => {
-        if (response.ok && new URL(request.url).origin === self.location.origin) {
+        if (response.ok) {
           const copy = response.clone();
           caches.open(CACHE).then((cache) => cache.put(request, copy));
         }

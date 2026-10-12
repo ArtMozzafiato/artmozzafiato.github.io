@@ -1,4 +1,4 @@
-# Mozzafiato Pizzería · Cotizador de cumpleaños
+# Mozzafiato Pizzería · Reservas y cotizador de cumpleaños
 
 App web (PWA) para que los clientes coticen su celebración de cumpleaños desde el
 celular. Funciona en Android y iPhone, se puede instalar en la pantalla de inicio
@@ -13,6 +13,47 @@ negocio con todo el detalle.
 3. Marca una o varias **actividades**; los precios se actualizan al instante.
 4. Llena sus **datos** y el del cumpleañero.
 5. Toca **Enviar por WhatsApp**: se abre un chat con el negocio y el mensaje listo.
+
+## Reservas de actividades (estilo Calendly)
+
+Página `reservar.html`, el mismo flujo que se usaba en Calendly:
+
+1. Elige la **experiencia** (Art Splash, Art Slime o Art Cerámica).
+2. Elige el **día** en el calendario y la **hora** (2:00 a 8:00 p. m., en punto).
+3. Llena nombre, correo, celular y **cuántas personas** van. La app totaliza al
+   instante (personas × precio del día) y calcula el **abono del 50%**.
+4. Acepta las condiciones (precio, abono, llegar 15 min antes, 10 min de
+   tolerancia, menores con adulto, cancelación con 24 h, términos).
+5. Toca **Programar**: aparece el recordatorio con el valor del abono y la cuenta
+   Bancolombia; al tocar **Abrir WhatsApp** se abre el chat del restaurante con
+   la reserva escrita, y se le recuerda **adjuntar el comprobante** en ese chat.
+
+Links para Instagram (abren directo el calendario de cada actividad):
+
+- `https://serlifecol-dot.github.io/artmozzafiato/reservar.html?actividad=splash`
+- `https://serlifecol-dot.github.io/artmozzafiato/reservar.html?actividad=slime`
+- `https://serlifecol-dot.github.io/artmozzafiato/reservar.html?actividad=ceramica`
+- `https://serlifecol-dot.github.io/artmozzafiato/reservar.html` (todas)
+
+Textos, precios, horas, cupos, datos de pago y condiciones están en
+`reservas` dentro de [`public/config.js`](public/config.js). Los viernes,
+sábados, domingos y festivos de Colombia se cobran con tarifa de fin de semana.
+
+**Plazas libres (opcional):** para que la app muestre "2 plazas libres" y no
+deje reservar una hora llena, conecta una hoja de Google siguiendo
+[`apps-script/README.md`](apps-script/README.md). Sin eso, se muestran todas
+las horas y el restaurante confirma por WhatsApp.
+
+## Instalar en el celular (Android y iPhone)
+
+Es una PWA: el mismo link funciona en los dos.
+
+- **Android (Chrome):** aparece el botón **Instalar**, o menú ⋮ → *Instalar app*.
+- **iPhone (Safari):** botón Compartir → *Agregar a inicio*.
+
+Queda con el ícono de Mozzafiato y abre a pantalla completa como una app.
+Manteniendo presionado el ícono (Android) aparecen los atajos *Reservar* y
+*Cumpleaños*.
 
 ## Precios y tiempos actuales
 
@@ -65,7 +106,7 @@ Ese es el link que se envía a los clientes.
 ## Para desarrolladores
 
 ```sh
-npm test        # pruebas de precios, festivos y mensaje
+npm test        # pruebas de precios, festivos, reservas y mensajes
 npm start       # servidor local en http://localhost:8080
 npm run icons   # regenera logo e íconos desde scripts/logo-original.png (requiere Pillow)
 ```

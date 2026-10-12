@@ -499,3 +499,217 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--g
   letter-spacing: 0.1em;
   color: var(--gold);
 }
+
+/* ============================================================
+   Reservas (reservar.html) — flujo estilo Calendly
+   ============================================================ */
+
+.hero--compact { padding-bottom: 18px; }
+.hero--compact .hero__logo { width: min(170px, 46vw); margin-bottom: 14px; }
+.hero--compact .tag--black { font-size: clamp(1.5rem, 7vw, 2.2rem); }
+.hero--compact .tag--gold { font-size: clamp(1.6rem, 7.6vw, 2.4rem); }
+.hero--compact .hero__subtitle { margin-top: 18px; }
+
+.crosslink { text-align: center; margin: 18px 0 0; }
+.crosslink a, .event a { color: var(--gold); font-weight: 700; }
+
+.back {
+  width: 44px;
+  height: 44px;
+  margin: 0 0 12px;
+  border: 1px solid var(--gold);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--gold);
+  font-size: 1.3rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.option--button {
+  width: 100%;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+}
+.option__go { color: var(--gold); font-size: 1.8rem; line-height: 1; align-self: center; }
+
+/* Encabezado del evento */
+.event__title {
+  margin: 0 0 12px;
+  font-weight: 900;
+  font-size: 1.25rem;
+  line-height: 1.2;
+  text-transform: uppercase;
+  color: var(--white);
+}
+.event__meta { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; color: var(--text); font-weight: 600; }
+.event__details { margin-top: 14px; border-top: 1px dashed var(--line); padding-top: 12px; }
+.event__details summary { cursor: pointer; color: var(--gold); font-weight: 800; text-transform: uppercase; font-size: 0.82rem; letter-spacing: 0.06em; }
+.event__details h3 { font-size: 0.9rem; margin: 18px 0 6px; color: var(--white); }
+.event__details p, .event__details li { color: var(--muted); font-size: 0.88rem; }
+.event__details ol { padding-left: 20px; margin: 0; display: grid; gap: 8px; }
+.event__details li strong { color: var(--text); }
+.event__intro { white-space: pre-line; color: var(--text) !important; font-size: 0.95rem !important; }
+.event__details .carousel--strip { padding: 0; }
+
+/* Calendario */
+.calendar__nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.calendar__nav strong { font-weight: 800; }
+.calendar__nav button {
+  width: 44px;
+  height: 44px;
+  border: none;
+  background: transparent;
+  color: var(--gold);
+  font-size: 1.8rem;
+  cursor: pointer;
+}
+.calendar__nav button:disabled { color: var(--line); cursor: default; }
+.calendar__grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; text-align: center; }
+.calendar__weekdays span { font-size: 0.72rem; color: var(--muted); padding: 6px 0; text-transform: uppercase; font-weight: 700; }
+.calendar__day {
+  position: relative;
+  aspect-ratio: 1;
+  max-height: 52px;
+  width: 100%;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: #5a554e;
+  font: inherit;
+  font-weight: 600;
+  cursor: default;
+  touch-action: manipulation;
+}
+.calendar__day.is-available { background: var(--gold-soft); color: var(--gold); font-weight: 800; cursor: pointer; }
+.calendar__day.is-selected { background: var(--gold-strong); color: var(--white); }
+.calendar__day.is-today::after,
+.calendar__day.is-holiday::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 5px;
+  width: 4px;
+  height: 4px;
+  margin-left: -2px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.calendar__day.is-holiday::before { background: var(--white); bottom: auto; top: 5px; }
+
+/* Horas */
+.time__day { margin: 0; font-weight: 900; font-size: 1.1rem; color: var(--white); }
+.time__title { margin-top: 20px; }
+.slots { display: grid; gap: 10px; }
+.slot { display: grid; grid-template-columns: 1fr; gap: 8px; transition: grid-template-columns 0.15s; }
+.slot.is-selected { grid-template-columns: 1fr 1fr; }
+.slot__time, .slot__next {
+  min-height: 58px;
+  border-radius: var(--radius);
+  font: inherit;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.slot__time {
+  border: 1px solid var(--gold);
+  background: transparent;
+  color: var(--gold);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.slot__time strong { font-size: 1.05rem; font-weight: 800; }
+.slot__time small { color: var(--muted); font-size: 0.8rem; }
+.slot.is-selected .slot__time { background: #3a352e; border-color: #3a352e; color: var(--white); }
+.slot__next { display: none; border: none; background: var(--gold-strong); color: var(--white); font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; }
+.slot.is-selected .slot__next { display: block; }
+
+/* Formulario */
+.booking .field { margin-bottom: 14px; }
+.question { border: none; margin: 0 0 18px; padding: 0 0 16px; border-bottom: 1px dashed var(--line); }
+.question__text { padding: 0; margin-bottom: 10px; font-weight: 600; color: var(--text); font-size: 0.95rem; line-height: 1.5; }
+label.question .question__text { display: block; }
+.check { display: flex; gap: 12px; align-items: center; padding: 8px 0; cursor: pointer; font-weight: 600; }
+.check input {
+  width: 24px;
+  height: 24px;
+  min-height: 0;
+  padding: 0;
+  flex-shrink: 0;
+  border: 1px solid var(--gold);
+  background: transparent;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+.check input[type='radio'] { border-radius: 50%; }
+.check input:checked { background: var(--gold-strong); border-color: var(--gold-strong); }
+.check input[type='checkbox']:checked::after { content: '✓'; color: var(--white); font-size: 0.85rem; font-weight: 900; }
+.check input[type='radio']:checked { box-shadow: inset 0 0 0 5px var(--black); }
+.question.invalid { border-bottom-color: #e0574f; box-shadow: none !important; }
+.question.invalid .question__text::after { content: ' · Obligatorio'; color: #e0574f; font-weight: 800; }
+
+.total { margin-top: 6px; padding: 14px; border: 1px solid var(--gold); border-radius: var(--radius); background: var(--gold-soft); }
+.total__row { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.total__row strong { font-size: 1.3rem; font-weight: 900; color: var(--white); white-space: nowrap; }
+.total__row--abono { margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--gold); }
+.total__row--abono span { font-weight: 800; color: var(--gold); text-transform: uppercase; font-size: 0.82rem; letter-spacing: 0.04em; }
+.total__row--abono strong { color: var(--gold); }
+.total .fineprint { margin-top: 10px; }
+
+/* Recordatorio del abono */
+.pay {
+  width: min(440px, calc(100vw - 32px));
+  max-height: calc(100dvh - 32px);
+  overflow-y: auto;
+  padding: 22px 18px;
+  border: 1px solid var(--gold);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+}
+.pay::backdrop { background: rgba(0, 0, 0, 0.8); }
+.pay__title { margin: 0 0 8px; font-weight: 900; text-transform: uppercase; color: var(--white); font-size: 1.2rem; }
+.pay__lead { margin: 0 0 14px; }
+.pay__amounts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+.pay__amounts div { display: flex; flex-direction: column; padding: 10px; border: 1px solid var(--line); border-radius: var(--radius); }
+.pay__amounts span { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); font-weight: 700; }
+.pay__amounts strong { font-size: 1.15rem; font-weight: 900; }
+.pay__abono { border-color: var(--gold) !important; background: var(--gold-soft); }
+.pay__abono strong { color: var(--gold); }
+.pay__account { display: flex; flex-direction: column; gap: 2px; padding: 12px; background: var(--black); border-radius: var(--radius); font-size: 0.9rem; }
+.pay__account strong { font-size: 1.3rem; letter-spacing: 0.06em; color: var(--white); }
+.pay__copy {
+  margin-top: 8px;
+  align-self: flex-start;
+  border: 1px solid var(--gold);
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--gold);
+  font: inherit;
+  font-weight: 700;
+  font-size: 0.8rem;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+.pay__steps { padding-left: 20px; margin: 14px 0 18px; display: grid; gap: 6px; }
+.pay__wa { width: 100%; justify-content: center; text-decoration: none; font-size: 0.95rem; padding: 16px; }
+.pay__cancel {
+  display: block;
+  width: 100%;
+  margin-top: 10px;
+  padding: 10px;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.bar__btn:disabled { opacity: 0.6; }
+.crosslink--top { margin: 0 0 16px; }
+.bar[hidden] { display: none; }
