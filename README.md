@@ -29,6 +29,13 @@ Todo está en **un solo archivo**: [`public/config.js`](public/config.js).
 Se puede editar directo en GitHub (ícono del lápiz) y al guardar en `main` la app
 se publica sola en uno o dos minutos.
 
+## Línea gráfica
+
+Sigue la identidad de Mozzafiato: fondo negro con textura, dorado del logo
+(`#b8996f`) y dorado de las cintas (`#b17a39`), títulos en **Montserrat Black**
+en mayúsculas, subtítulos anchos en **Michroma** y etiquetas tipo cinta (negra y
+dorada inclinada). Los colores están al inicio de `public/styles.css`.
+
 ## Publicación (GitHub Pages)
 
 La primera vez:
@@ -44,7 +51,7 @@ Ese es el link que se envía a los clientes.
 ```sh
 npm test        # pruebas de precios, festivos y mensaje
 npm start       # servidor local en http://localhost:8080
-npm run icons   # regenera los PNG desde public/icons/icon.svg (requiere playwright)
+npm run icons   # regenera logo e íconos desde scripts/logo-original.png (requiere Pillow)
 ```
 
 Sin frameworks ni paso de compilación: HTML, CSS y JavaScript (módulos ES) en `public/`.
