@@ -67,7 +67,7 @@ export const config = {
     {
       id: 'splash',
       nombre: 'Art splash',
-      emoji: '🎨',
+      emoji: '🫟',
       descripcion: 'Pintura libre y salpicada, ¡a ensuciarse con arte! Todos entran juntos.',
       duracionMinutos: 45,
       // Se organiza por sala: empieza siempre en punto (1:00, 2:00…) y los
@@ -89,7 +89,7 @@ export const config = {
     {
       id: 'slime',
       nombre: 'Art slime',
-      emoji: '🫧',
+      emoji: '🧪',
       descripcion: 'Cada niño crea su slime con 2 texturas.',
       duracionMinutos: 45,
       fotos: [
@@ -168,23 +168,28 @@ export const config = {
     // Vacío = no se controlan los salones; el restaurante confirma por WhatsApp.
     apiUrl: '',
 
+    // Cada actividad cuenta sus cupos por separado: reservar una no bloquea otra.
+    //   cupoPor: 'salon'   → "cupos" = salones por hora; cada reserva ocupa un
+    //                        salón completo, sea de 2 o de 15 personas.
+    //   cupoPor: 'persona' → "cupos" = personas por hora (taller grupal).
     actividades: [
       {
         id: 'splash',
         activo: true,
         nombre: 'Art Splash',
         titulo: 'ArtSplash - Laureles "Un parche diferente"',
-        emoji: '🎨',
+        emoji: '🫟',
         duracionMinutos: 45,
-        // Horas de inicio (24 h). "cupos" = salones por hora: cada reserva
-        // ocupa un salón completo, sea de 2 o de 15 personas.
+        // Horas de inicio (24 h).
         horas: ['14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00'],
-        cupos: 2,
+        cupoPor: 'salon',
+        cupos: 2, // 2 salones
+        resumen: '2 salones · cada reserva toma un salón',
         // Días de la semana en que se ofrece (0 = domingo … 6 = sábado).
         dias: [0, 1, 2, 3, 4, 5, 6],
         precio: { entreSemana: 50000, finDeSemana: 70000 }, // fin de semana = vie, sáb, dom y festivos
         intro:
-          '🎨✨ ¡Llegó Art-Splash a ArtMozzafiato! ✨\n🎨 ¿Estás listo para liberar tu creatividad y vivir una experiencia artística fuera de lo común? 🎟️',
+          '🫟✨ ¡Llegó Art-Splash a ArtMozzafiato! ✨\n🎨 ¿Estás listo para liberar tu creatividad y vivir una experiencia artística fuera de lo común? 🎟️',
         fotos: [
           { src: 'fotos/splash-1.jpg', alt: 'Familia feliz con sus cuadros en la sala neón de Art splash' },
           { src: 'fotos/splash-2.jpg', alt: 'Sala de Art splash lista: lienzos y bombas de pintura neón' },
@@ -193,28 +198,59 @@ export const config = {
       {
         id: 'slime',
         activo: true,
-        nombre: 'Art Slime',
-        titulo: 'Art Slime - Laureles',
-        emoji: '🫧',
+        nombre: 'Art Slime · Clase privada',
+        titulo: 'Art Slime - Laureles · Clase privada',
+        emoji: '🧪',
         duracionMinutos: 45,
         horas: ['14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00'],
-        cupos: 2,
+        // Los sábados el salón está ocupado por el taller grupal de 1:30 p. m.
+        horasBloqueadas: { 6: ['14:00'] },
+        cupoPor: 'salon',
+        cupos: 1, // 1 salón
+        resumen: 'Salón privado · mínimo 5 personas',
+        personas: { minimo: 5, maximo: 30 }, // clase privada desde 5 personas
         dias: [0, 1, 2, 3, 4, 5, 6],
         precio: 50000,
-        intro: '🫧 Crea tu propio slime con 2 texturas. ¡Un parche diferente para todas las edades!',
+        intro:
+          '🧪 Clase privada de slime para tu grupo (mínimo 5 personas): cada uno crea su slime con 2 texturas. ¿Son menos de 5? Únanse al taller grupal de los sábados a la 1:30 p. m.',
+        video: { src: 'videos/slime.mp4', poster: 'videos/slime-portada.jpg' },
         fotos: [
           { src: 'fotos/slime-1.jpg', alt: 'Niño mezclando su slime azul' },
           { src: 'fotos/slime-3.jpg', alt: 'Niños jugando con slime de colores en la sala neón' },
         ],
       },
       {
-        id: 'ceramica',
+        id: 'slime-taller',
         activo: true,
+        nombre: 'Art Slime · Taller grupal',
+        titulo: 'Art Slime - Laureles · Taller grupal de los sábados',
+        emoji: '🧪',
+        duracionMinutos: 45,
+        horas: ['13:30'],
+        dias: [6], // solo sábados
+        cupoPor: 'persona',
+        cupos: 10, // 10 niños por taller
+        resumen: 'Sábados 1:30 p. m. · cupo para 10 niños · grupos de 1 a 4',
+        // Grupos de 5 o más reservan la clase privada.
+        personas: { minimo: 1, maximo: 4 },
+        precio: 50000,
+        intro:
+          '🧪 ¿Son menos de 5? Vengan a experimentar el taller de slime con más personas. Sábados a la 1:30 p. m., cupo para 10 niños. Cada uno crea su slime con 2 texturas.',
+        video: { src: 'videos/slime.mp4', poster: 'videos/slime-portada.jpg' },
+        fotos: [
+          { src: 'fotos/slime-2.jpg', alt: 'Niña amasando slime sobre un bowl' },
+          { src: 'fotos/slime-3.jpg', alt: 'Niños jugando con slime de colores en la sala neón' },
+        ],
+      },
+      {
+        id: 'ceramica',
+        activo: false, // por ahora no se reserva en línea
         nombre: 'Art Cerámica',
         titulo: 'Art Cerámica - Laureles',
         emoji: '🏺',
         duracionMinutos: 60,
         horas: ['14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00'],
+        cupoPor: 'salon',
         cupos: 2,
         dias: [0, 1, 2, 3, 4, 5, 6],
         precio: 25000,

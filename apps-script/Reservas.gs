@@ -2,11 +2,14 @@
  * Mozzafiato · Reservas en Google Sheets (opcional).
  *
  * Guarda cada reserva en la hoja "Reservas" y le dice a la app cuántos
- * salones quedan en cada hora (cada reserva ocupa un salón completo). Instrucciones en apps-script/README.md.
+ * salones (o cupos del taller grupal) quedan en cada hora. Instrucciones en apps-script/README.md.
  */
 
-// Salones por hora de cada actividad (igual que "cupos" en config.js).
-const CUPOS = { splash: 2, slime: 2, ceramica: 2 };
+// Cupos por hora de cada actividad (igual que "cupos" en config.js).
+// Art Splash: 2 salones. Art Slime clase privada: 1 salón.
+// Taller grupal de slime: 10 personas (se suman las personas de cada reserva).
+const CUPOS = { splash: 2, slime: 1, 'slime-taller': 10 };
+const POR_PERSONA = { 'slime-taller': true };
 
 // Correo que recibe un aviso por cada reserva nueva. Vacío = sin aviso.
 const CORREO_AVISOS = '';
@@ -49,7 +52,7 @@ function ocupados_(actividad, fecha) {
     if (fila[2] !== actividad || texto_(fila[3], zona) !== fecha) continue;
     if (String(fila[13]).trim().toLowerCase() === ESTADO_CANCELADA.toLowerCase()) continue;
     const hora = texto_(fila[4], zona);
-    conteo[hora] = (conteo[hora] || 0) + 1;
+    conteo[hora] = (conteo[hora] || 0) + (POR_PERSONA[actividad] ? Number(fila[5]) || 0 : 1);
   }
   return conteo;
 }
@@ -81,7 +84,8 @@ function doPost(e) {
   const candado = LockService.getScriptLock();
   candado.waitLock(20000);
   try {
-    if ((ocupados_(d.actividad, d.fecha)[d.hora] || 0) >= CUPOS[d.actividad]) {
+    const pide = POR_PERSONA[d.actividad] ? Number(d.personas) || 1 : 1;
+    if ((ocupados_(d.actividad, d.fecha)[d.hora] || 0) + pide > CUPOS[d.actividad]) {
       return json_({ ok: false, error: 'lleno' });
     }
     const id = Utilities.getUuid().slice(0, 6).toUpperCase();

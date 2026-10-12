@@ -18,8 +18,14 @@ negocio con todo el detalle.
 
 Página `reservar.html`, el mismo flujo que se usaba en Calendly:
 
-1. Elige la **experiencia** (Art Splash, Art Slime o Art Cerámica).
-2. Elige el **día** en el calendario y la **hora** (2:00 a 8:00 p. m., en punto).
+1. Elige la **experiencia**:
+   - 🫟 **Art Splash**: 2 salones por hora, de 2:00 a 8:00 p. m. Cada reserva toma
+     un salón completo (una pareja o 15 personas cuentan igual).
+   - 🧪 **Art Slime · Clase privada**: 1 salón, mínimo 5 personas. Los sábados
+     empieza a las 3:00 p. m. porque a la 1:30 está el taller grupal.
+   - 🧪 **Art Slime · Taller grupal**: sábados 1:30 p. m., cupo para 10 niños,
+     grupos de 1 a 4 personas (para quienes no completan la clase privada).
+2. Elige el **día** en el calendario y la **hora**.
 3. Llena nombre, correo, celular y **cuántas personas** van. La app totaliza al
    instante (personas × precio del día) y calcula el **abono del 50%**.
 4. Acepta las condiciones (precio, abono, llegar 15 min antes, 10 min de
@@ -31,17 +37,17 @@ Página `reservar.html`, el mismo flujo que se usaba en Calendly:
 Links para Instagram (abren directo el calendario de cada actividad):
 
 - `https://serlifecol-dot.github.io/artmozzafiato/reservar.html?actividad=splash`
-- `https://serlifecol-dot.github.io/artmozzafiato/reservar.html?actividad=slime`
-- `https://serlifecol-dot.github.io/artmozzafiato/reservar.html?actividad=ceramica`
+- `https://serlifecol-dot.github.io/artmozzafiato/reservar.html?actividad=slime` (clase privada)
+- `https://serlifecol-dot.github.io/artmozzafiato/reservar.html?actividad=slime-taller` (taller de los sábados)
 - `https://serlifecol-dot.github.io/artmozzafiato/reservar.html` (todas)
 
 Textos, precios, horas, salones, datos de pago y condiciones están en
 `reservas` dentro de [`public/config.js`](public/config.js). Los viernes,
 sábados, domingos y festivos de Colombia se cobran con tarifa de fin de semana.
 
-**Salones (opcional):** Art Splash tiene 2 salones por hora y cada reserva ocupa
-un salón completo (una pareja o 15 personas cuentan igual). Para que la app
-muestre "1/2 salones reservados" y marque "Lleno" cuando estén los dos, conecta una hoja de Google siguiendo
+**Salones y cupos (opcional):** cada actividad cuenta por separado; reservar una
+no bloquea las otras. Para que la app muestre "1/2 salones reservados" o
+"7/10 cupos reservados" y marque "Lleno", conecta una hoja de Google siguiendo
 [`apps-script/README.md`](apps-script/README.md). Sin eso, se muestran todas
 las horas y el restaurante confirma por WhatsApp.
 

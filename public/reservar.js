@@ -8,6 +8,8 @@ import {
   buildBookingMessage,
   fillText,
   isDayBookable,
+  peopleLimits,
+  slotStatus,
   lastBookableKey,
   priceText,
   slotsFor,
@@ -25,6 +27,7 @@ const state = {
   activity: null,
   date: null, // 'AAAA-MM-DD'
   time: null, // 'HH:MM'
+  slot: null, // hora elegida con sus cupos libres
   month: null, // Date del primer día del mes visible
   ocupados: null,
 };
@@ -56,6 +59,7 @@ const fixedActivity = activities.find((a) => a.id === requested) ?? null;
 
 function renderActivities() {
   const list = $('#activity-list');
+  const shownVideos = new Set(); // cada video una sola vez en la lista
   for (const activity of activities) {
     const card = document.createElement('div');
     card.className = 'option-card';
@@ -72,12 +76,33 @@ function renderActivities() {
       <span class="option__go" aria-hidden="true">›</span>`;
     button.querySelector('.option__name').textContent = activity.nombre;
     button.querySelector('.option__desc').textContent = priceText(activity);
-    button.querySelector('.option__meta').textContent = `⏱ ${formatDuration(activity.duracionMinutos)}`;
+    button.querySelector('.option__meta').textContent = [`⏱ ${formatDuration(activity.duracionMinutos)}`, activity.resumen]
+      .filter(Boolean)
+      .join(' · ');
     button.addEventListener('click', () => selectActivity(activity));
     card.append(button);
-    if (activity.fotos?.length) card.append(createCarousel(activity.fotos, { label: `Fotos de ${activity.nombre}` }));
+    if (activity.video && !shownVideos.has(activity.video.src)) {
+      shownVideos.add(activity.video.src);
+      card.append(createVideo(activity));
+    } else if (activity.fotos?.length) card.append(createCarousel(activity.fotos, { label: `Fotos de ${activity.nombre}` }));
     list.append(card);
   }
+}
+
+function createVideo(activity) {
+  const box = document.createElement('div');
+  box.className = 'video';
+  const video = document.createElement('video');
+  Object.assign(video, {
+    src: activity.video.src,
+    poster: activity.video.poster ?? '',
+    controls: true,
+    playsInline: true,
+    preload: 'none',
+  });
+  video.setAttribute('aria-label', `Video de ${activity.nombre}`);
+  box.append(video);
+  return box;
 }
 
 function selectActivity(activity, push = true) {
@@ -109,6 +134,7 @@ function renderDescription(activity) {
   intro.className = 'event__intro';
   intro.textContent = activity.intro ?? '';
   box.append(intro);
+  if (activity.video) box.append(createVideo(activity));
   if (activity.fotos?.length) box.append(createCarousel(activity.fotos, { label: `Fotos de ${activity.nombre}` }));
 
   const { terminos } = reservas;
@@ -192,6 +218,7 @@ async function fetchOcupados(activity, key) {
 async function selectDay(key, push = true) {
   state.date = key;
   state.time = null;
+  state.slot = null;
   renderCalendar();
   const date = parseDate(key);
   const info = dayInfo(date, config);
@@ -227,25 +254,21 @@ function renderSlots(loadingText = null) {
     const row = document.createElement('div');
     row.className = 'slot';
     row.classList.toggle('is-selected', slot.value === state.time);
+    if (slot.value === state.time) state.slot = slot;
 
     const pick = document.createElement('button');
     pick.type = 'button';
     pick.className = 'slot__time';
     pick.innerHTML = `<strong></strong>${slot.libres !== null ? '<small></small>' : ''}`;
     pick.querySelector('strong').textContent = slot.label;
-    if (slot.libres !== null) {
-      const ocupados = slot.cupos - slot.libres;
-      pick.querySelector('small').textContent =
-        slot.libres === 0
-          ? `Lleno · ${ocupados}/${slot.cupos} salones`
-          : `${ocupados}/${slot.cupos} salones reservados`;
-    }
+    if (slot.libres !== null) pick.querySelector('small').textContent = slotStatus(slot, state.activity);
     if (slot.libres === 0) {
       pick.disabled = true;
       row.classList.add('is-full');
     }
     pick.addEventListener('click', () => {
       state.time = slot.value;
+      state.slot = slot;
       renderSlots();
     });
 
@@ -262,8 +285,16 @@ function renderSlots(loadingText = null) {
 // ---------- Paso 4: formulario ----------
 
 const peopleInput = $('#people');
-const clampPeople = (n) =>
-  Math.min(reservas.personas.maximo, Math.max(reservas.personas.minimo, Math.round(n) || reservas.personas.minimo));
+// En un taller por personas no se puede reservar más de lo que queda libre.
+function limits() {
+  const { minimo, maximo } = peopleLimits(state.activity, reservas);
+  const slot = state.activity.cupoPor === 'persona' ? state.slot : null;
+  return { minimo, maximo: slot?.libres ? Math.min(maximo, slot.libres) : maximo };
+}
+const clampPeople = (n) => {
+  const { minimo, maximo } = limits();
+  return Math.min(maximo, Math.max(minimo, Math.round(n) || minimo));
+};
 
 function checkTemplate(name, text, option, type = 'checkbox') {
   const box = document.createElement('fieldset');
@@ -308,7 +339,13 @@ function openForm() {
   if (!state.time) return;
   const date = parseDate(state.date);
   $('#form-when').textContent = `${timeLabel(state.time)}, ${formatLongDate(date)}`;
-  if (!peopleInput.value) peopleInput.value = 2;
+  const { minimo, maximo } = limits();
+  Object.assign(peopleInput, { min: minimo, max: maximo });
+  peopleInput.value = clampPeople(Number(peopleInput.value) || Math.max(2, minimo));
+  const hint = $('#people-hint');
+  const left = state.activity.cupoPor === 'persona' && state.slot?.libres ? ` Quedan ${state.slot.libres} cupos en este taller.` : '';
+  hint.textContent =
+    (minimo > 1 ? `Mínimo ${minimo} personas.` : `De ${minimo} a ${maximo} personas.`) + left;
   renderTotal();
   show('form');
 }
@@ -426,7 +463,7 @@ form.addEventListener('submit', async (event) => {
   if (!result.ok) {
     alert(
       result.error === 'lleno'
-        ? 'Lo sentimos, esa hora se acaba de llenar. Elige otra hora.'
+        ? 'Ya no quedan cupos suficientes a esa hora. Elige otra hora.'
         : 'No pudimos registrar tu reserva. Intenta de nuevo.'
     );
     if (result.error === 'lleno') {

@@ -37,8 +37,9 @@ export function lastBookableKey(reservas, now) {
 }
 
 // Horas de un día y, si se conoce la ocupación (ocupados = { '14:00': 1 }),
-// cuántos salones quedan. Las horas llenas se devuelven con libres = 0.
-// Cada reserva ocupa un salón completo, sin importar cuántas personas sean.
+// cuántos cupos quedan. Las horas llenas se devuelven con libres = 0.
+// Con cupoPor 'salon' cada reserva ocupa un salón completo, sin importar
+// cuántas personas sean; con 'persona' la ocupación es la suma de personas.
 export function slotsFor(activity, key, reservas, now, ocupados = null) {
   const date = parseDate(key);
   if (!date) return [];
@@ -47,14 +48,26 @@ export function slotsFor(activity, key, reservas, now, ocupados = null) {
   if (activity.dias && !activity.dias.includes(date.getDay())) return [];
 
   const limit = key === now.dateKey ? now.minutes + reservas.anticipacionMinimaMinutos : -1;
+  const blocked = activity.horasBloqueadas?.[date.getDay()] ?? [];
   return activity.horas
-    .filter((hora) => toMinutes(hora) >= limit)
+    .filter((hora) => toMinutes(hora) >= limit && !blocked.includes(hora))
     .map((hora) => ({
       value: hora,
       label: timeLabel(hora),
       libres: ocupados ? Math.max(0, activity.cupos - (ocupados[hora] ?? 0)) : null,
       cupos: activity.cupos,
     }));
+}
+
+// Mínimo y máximo de personas por reserva (la actividad puede tener los suyos).
+export const peopleLimits = (activity, reservas) => ({ ...reservas.personas, ...activity.personas });
+
+// "1/2 salones reservados", "Lleno · 10/10 cupos"
+export function slotStatus(slot, activity) {
+  if (slot.libres === null) return null;
+  const taken = slot.cupos - slot.libres;
+  const unit = activity.cupoPor === 'persona' ? 'cupos' : 'salones';
+  return slot.libres === 0 ? `Lleno · ${taken}/${slot.cupos} ${unit}` : `${taken}/${slot.cupos} ${unit} reservados`;
 }
 
 export const isDayBookable = (activity, key, reservas, now) =>

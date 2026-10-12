@@ -715,3 +715,17 @@ label.question .question__text { display: block; }
 .bar[hidden] { display: none; }
 .slot.is-full .slot__time { border-color: var(--line); color: #6d6860; cursor: not-allowed; text-decoration: none; }
 .slot.is-full .slot__time small { color: #e0574f; font-weight: 700; }
+.video { padding: 0 14px 14px; }
+.event__details .video { padding: 0; margin: 12px 0; }
+.video video {
+  display: block;
+  width: 100%;
+  max-width: 320px;
+  max-height: 70vh;
+  aspect-ratio: 9 / 16;
+  margin: 0 auto;
+  object-fit: cover;
+  background: var(--black);
+  border: 1px solid var(--gold);
+  border-radius: var(--radius);
+}

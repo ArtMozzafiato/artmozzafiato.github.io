@@ -8,6 +8,8 @@ import {
   buildBookingMessage,
   fillText,
   isDayBookable,
+  peopleLimits,
+  slotStatus,
   slotsFor,
   zonedNow,
 } from '../public/booking.js';
@@ -15,6 +17,8 @@ import {
 const { reservas } = config;
 const splash = reservas.actividades.find((a) => a.id === 'splash');
 const ceramica = reservas.actividades.find((a) => a.id === 'ceramica');
+const slime = reservas.actividades.find((a) => a.id === 'slime');
+const taller = reservas.actividades.find((a) => a.id === 'slime-taller');
 const now = { dateKey: '2026-10-12', minutes: 11 * 60 }; // lunes 11:00 a. m.
 const price = (date, people, activity = splash) => bookingPrice(activity, parseDate(date), people, config);
 
@@ -113,4 +117,37 @@ test('todas las actividades activas tienen lo necesario', () => {
   for (const a of activeActivities(reservas)) {
     assert.ok(a.titulo && a.horas.length && a.cupos > 0 && a.duracionMinutos > 0, a.id);
   }
+});
+
+test('solo se reservan Art Splash y Art Slime', () => {
+  assert.deepEqual(activeActivities(reservas).map((a) => a.id), ['splash', 'slime', 'slime-taller']);
+  assert.equal(splash.emoji, '🫟');
+  assert.equal(slime.emoji, '🧪');
+});
+
+test('Art Slime clase privada: 1 salón, mínimo 5 personas, sábado sin la hora del taller', () => {
+  assert.deepEqual(peopleLimits(slime, reservas), { minimo: 5, maximo: 30 });
+  const saturday = slotsFor(slime, '2026-10-17', reservas, now).map((s) => s.value);
+  assert.equal(saturday[0], '15:00');
+  assert.equal(slotsFor(slime, '2026-10-16', reservas, now)[0].value, '14:00'); // viernes
+  const [first] = slotsFor(slime, '2026-10-16', reservas, now, { '14:00': 1 });
+  assert.equal(slotStatus(first, slime), 'Lleno · 1/1 salones');
+  assert.equal(bookingPrice(slime, parseDate('2026-10-17'), 5, config).total, 250000);
+});
+
+test('Art Slime taller grupal: sábados 1:30 p. m., 10 cupos por persona, grupos de 1 a 4', () => {
+  assert.equal(isDayBookable(taller, '2026-10-16', reservas, now), false); // viernes
+  const [slot] = slotsFor(taller, '2026-10-17', reservas, now, { '13:30': 7 });
+  assert.equal(slot.value, '13:30');
+  assert.equal(slot.label, '1:30 p. m.');
+  assert.equal(slot.libres, 3);
+  assert.equal(slotStatus(slot, taller), '7/10 cupos reservados');
+  assert.deepEqual(peopleLimits(taller, reservas), { minimo: 1, maximo: 4 });
+  const [full] = slotsFor(taller, '2026-10-17', reservas, now, { '13:30': 10 });
+  assert.equal(slotStatus(full, taller), 'Lleno · 10/10 cupos');
+});
+
+test('Art Splash muestra salones', () => {
+  const [slot] = slotsFor(splash, '2026-10-16', reservas, now, { '14:00': 1 });
+  assert.equal(slotStatus(slot, splash), '1/2 salones reservados');
 });

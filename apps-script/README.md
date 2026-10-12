@@ -31,8 +31,8 @@ Cada reserva ocupa un salón completo, sea una pareja o un grupo de 15.
 - Para liberar un cupo (no pagó, canceló o reprogramó), escribe **Cancelada**
   en la columna *Estado*. Esa hora vuelve a aparecer disponible.
 - Para bloquear una hora (evento privado, mantenimiento), agrega una fila a mano
-  con la actividad (`splash`, `slime` o `ceramica`), la fecha (`2026-10-24`) y
-  la hora (`15:00`).
+  con la actividad (`splash`, `slime` o `slime-taller`), la fecha (`2026-10-24`) y
+  la hora (`15:00`). En el taller grupal, pon en *Personas* cuántos cupos bloqueas.
 
 Si cambias el código de `Reservas.gs`, usa **Implementar → Administrar
 implementaciones → Editar → Nueva versión** para que la URL siga siendo la misma.
