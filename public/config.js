@@ -59,6 +59,10 @@ export const config = {
       descripcion: 'Cada invitado prepara y decora su propia pizza.',
       duracionMinutos: 25, // máximo armando
       precio: 30000,
+      fotos: [
+        { src: 'fotos/pizza-1.jpg', alt: 'Niños armando sus pizzas en la mesa, vista desde arriba' },
+        { src: 'fotos/pizza-2.jpg', alt: 'Niño poniéndole salsa a su pizza' },
+      ],
     },
     {
       id: 'splash',
