@@ -10,6 +10,7 @@ const form = $('#quote-form');
 const dateInput = $('#date');
 const timeSelect = $('#time');
 const peopleInput = $('#people');
+const attendeesInput = $('#attendees');
 const activitiesBox = $('#activities');
 const extrasBox = $('#extras');
 const activeExtras = config.extras.filter((extra) => extra.activo);
@@ -27,24 +28,38 @@ function setupDateLimits() {
   dateInput.max = toInputValue(max);
 }
 
-function setupPeople() {
-  const { minimo, maximo, porDefecto } = config.personas;
-  Object.assign(peopleInput, { min: minimo, max: maximo, value: porDefecto });
-  document.querySelectorAll('[data-step]').forEach((button) => {
-    button.addEventListener('click', () => {
-      const next = clampPeople(Number(peopleInput.value || 0) + Number(button.dataset.step));
-      peopleInput.value = next;
-      render();
-    });
-  });
-  peopleInput.addEventListener('change', () => {
-    peopleInput.value = clampPeople(Number(peopleInput.value));
-    render();
-  });
+const clamp = (n, { minimo, maximo }) => Math.min(maximo, Math.max(minimo, Math.round(n) || minimo));
+const clampPeople = (n) => clamp(n, config.personas.participantes);
+const clampAttendees = (n) => clamp(n, config.personas.asistentes);
+
+// Quienes hacen actividades también son asistentes: si uno cambia, el otro
+// se ajusta para que nunca haya más participantes que asistentes.
+function setCounts(changed) {
+  let people = clampPeople(Number(peopleInput.value));
+  let attendees = clampAttendees(Number(attendeesInput.value));
+  if (people > attendees) {
+    if (changed === 'people') attendees = clampAttendees(people);
+    else people = attendees;
+  }
+  peopleInput.value = people;
+  attendeesInput.value = attendees;
+  render();
 }
 
-const clampPeople = (n) =>
-  Math.min(config.personas.maximo, Math.max(config.personas.minimo, Math.round(n) || config.personas.minimo));
+function setupPeople() {
+  const { asistentes, participantes } = config.personas;
+  Object.assign(attendeesInput, { min: asistentes.minimo, max: asistentes.maximo, value: asistentes.porDefecto });
+  Object.assign(peopleInput, { min: participantes.minimo, max: participantes.maximo, value: participantes.porDefecto });
+  document.querySelectorAll('[data-step]').forEach((button) => {
+    button.addEventListener('click', () => {
+      const input = button.dataset.target === 'attendees' ? attendeesInput : peopleInput;
+      input.value = Number(input.value || 0) + Number(button.dataset.step);
+      setCounts(button.dataset.target);
+    });
+  });
+  peopleInput.addEventListener('change', () => setCounts('people'));
+  attendeesInput.addEventListener('change', () => setCounts('attendees'));
+}
 
 function optionTemplate({ name, value, emoji, title, description, meta, photos }) {
   const card = document.createElement('div');
@@ -123,6 +138,7 @@ function readState() {
   return {
     date: parseDate(dateInput.value),
     people: clampPeople(Number(peopleInput.value)),
+    attendees: clampAttendees(Number(attendeesInput.value)),
     activityIds: checkedValues('activity'),
     extraIds: checkedValues('extra'),
   };
@@ -197,6 +213,26 @@ function renderSummary(state, quote) {
       row.append(left, right);
       summary.append(row);
     }
+    if (quote.balance > 0) {
+      const sub = document.createElement('div');
+      sub.className = 'summary__row summary__row--sub';
+      sub.innerHTML = `<span>Subtotal actividades y extras</span><strong>${formatCOP(quote.subtotal)}</strong>`;
+      summary.append(sub);
+
+      const balance = document.createElement('div');
+      balance.className = 'summary__balance';
+      balance.innerHTML = `
+        <div class="summary__balance-head">
+          <span>🍕 Saldo para consumir en el restaurante</span>
+          <strong>${formatCOP(quote.balance)}</strong>
+        </div>
+        <small>Consumo mínimo del evento: ${quote.attendees} asistentes × ${formatCOP(
+          config.consumoMinimoPorAsistente
+        )} = ${formatCOP(quote.minimumSpend)}, menos ${formatCOP(quote.subtotal)} de actividades y extras.
+        Lo disfrutan en pizzas, hamburguesas y bebidas durante el evento.</small>`;
+      summary.append(balance);
+    }
+
     const total = document.createElement('div');
     total.className = 'summary__total';
     total.innerHTML = `<span>Total${quote.approximate ? ' aprox.' : ''}</span><span>${formatCOP(quote.total)}</span>`;
@@ -293,7 +329,7 @@ form.addEventListener('submit', (event) => {
 
 form.addEventListener('input', (event) => {
   event.target.classList?.remove('invalid');
-  if (event.target !== peopleInput) render();
+  if (event.target !== peopleInput && event.target !== attendeesInput) render();
 });
 
 // ---------- Instalación (PWA) ----------

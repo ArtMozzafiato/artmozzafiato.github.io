@@ -12,7 +12,8 @@ export function buildMessage(data, quote, config) {
     `🎂 Cumpleañero: ${data.birthdayName} (${data.birthdayAge} años)`,
     `📅 Fecha: ${formatLongDate(data.date)} (${dayType})`,
     `🕒 Hora: ${data.time}`,
-    `👥 Personas: ${data.people}`,
+    `👥 Asistentes al evento: ${quote.attendees}`,
+    `🎨 Hacen actividades: ${data.people}`,
     `⏱️ Estancia aprox.: ${formatDuration(quote.stayMinutes)}`,
     '',
     '*Cotización:*',
@@ -21,6 +22,13 @@ export function buildMessage(data, quote, config) {
       const approx = line.approximate ? ' aprox.' : '';
       return `• ${line.name}${qty}: ${formatCOP(line.subtotal)}${approx}`;
     }),
+    ...(quote.balance > 0
+      ? [
+          `Subtotal actividades y extras: ${formatCOP(quote.subtotal)}`,
+          `🍕 Saldo para consumir en el restaurante: ${formatCOP(quote.balance)}`,
+          `   (consumo mínimo ${quote.attendees} × ${formatCOP(config.consumoMinimoPorAsistente)} = ${formatCOP(quote.minimumSpend)})`,
+        ]
+      : []),
     '',
     `*Total estimado: ${formatCOP(quote.total)}${quote.approximate ? ' aprox.' : ''}*`,
     '',

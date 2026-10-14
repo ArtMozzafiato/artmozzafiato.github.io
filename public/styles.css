@@ -281,6 +281,19 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--g
   font-size: 0.9rem;
 }
 .summary__stay strong { color: var(--gold); white-space: nowrap; }
+.summary__row--sub { font-weight: 700; border-bottom: none; }
+.summary__balance {
+  margin-top: 6px;
+  padding: 12px;
+  border: 1px solid var(--gold);
+  background: var(--gold-soft);
+  border-radius: var(--radius);
+}
+.summary__balance-head { display: flex; justify-content: space-between; gap: 12px; font-weight: 700; }
+.summary__balance-head strong { color: var(--gold); white-space: nowrap; }
+.summary__balance small { display: block; margin-top: 6px; color: var(--muted); line-height: 1.4; }
+.counter + .counter { margin-top: 18px; }
+.counter > .field__label { display: block; margin-bottom: 8px; }
 .summary__empty { color: var(--muted); margin: 0; }
 .fineprint { color: var(--muted); font-size: 0.8rem; margin: 14px 0 0; }
 

@@ -25,10 +25,15 @@ export const config = {
   mesesMaximos: 6,
 
   personas: {
-    minimo: 1,
-    maximo: 60,
-    porDefecto: 8,
+    // Todos los que vienen al evento: niños y adultos.
+    asistentes: { minimo: 1, maximo: 150, porDefecto: 15 },
+    // Los que hacen las actividades (siempre ≤ asistentes).
+    participantes: { minimo: 1, maximo: 60, porDefecto: 8 },
   },
+
+  // Consumo promedio por asistente. Asistentes × este valor, menos lo que
+  // suman actividades y extras, es el saldo para consumir en el restaurante.
+  consumoMinimoPorAsistente: 60000,
 
   // Horario del restaurante (formato 24 h). Las horas de inicio se generan
   // solas cada "intervaloMinutos", y la última es la que alcanza a terminar

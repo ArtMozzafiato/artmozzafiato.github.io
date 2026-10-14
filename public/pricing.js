@@ -39,7 +39,7 @@ export function unitPrice(activity, people, info) {
   return { amount: precio.finDeSemana, note: 'Tarifa fin de semana / festivo' };
 }
 
-export function buildQuote({ date, people, activityIds, extraIds = [] }, config) {
+export function buildQuote({ date, people, attendees = 0, activityIds, extraIds = [] }, config) {
   const info = date ? dayInfo(date, config) : null;
   const lines = [];
 
@@ -74,10 +74,20 @@ export function buildQuote({ date, people, activityIds, extraIds = [] }, config)
     });
   }
 
+  // Consumo mínimo del evento: lo que no cubren actividades y extras queda
+  // como saldo para consumir en el restaurante.
+  const subtotal = lines.reduce((sum, line) => sum + line.subtotal, 0);
+  const minimumSpend = attendees * (config.consumoMinimoPorAsistente ?? 0);
+  const balance = Math.max(0, minimumSpend - subtotal);
+
   return {
     info,
     lines,
-    total: lines.reduce((sum, line) => sum + line.subtotal, 0),
+    attendees,
+    subtotal,
+    minimumSpend,
+    balance,
+    total: subtotal + balance,
     approximate: lines.some((line) => line.approximate),
     stayMinutes: stayMinutes(activityIds, config),
     needsRoom: onTheHourOnly(activityIds, config),

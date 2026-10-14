@@ -9,7 +9,8 @@ negocio con todo el detalle.
 
 1. Elige **fecha y hora**. La app indica si es tarifa entre semana o de fin de
    semana/festivo (los festivos de Colombia se calculan solos).
-2. Elige el **número de personas**.
+2. Indica cuántos **asistentes** vienen al evento (niños y adultos) y cuántos de
+   ellos **hacen actividades**.
 3. Marca una o varias **actividades**; los precios se actualizan al instante.
 4. Llena sus **datos** y el del cumpleañero.
 5. Toca **Enviar por WhatsApp**: se abre un chat con el negocio y el mensaje listo.
@@ -25,6 +26,11 @@ negocio con todo el detalle.
 
 **Extra:** Decoración Pablo, $35.000 por reserva (personaje Pablo con estructura
 de neón, dos velas volcán, deditos de queso y una bebida).
+
+**Consumo mínimo:** $60.000 por asistente. La cotización calcula
+`asistentes × 60.000 − (actividades + extras)` y lo muestra como **saldo para
+consumir en el restaurante**. Si las actividades ya cubren ese monto, no se
+muestra saldo. El valor se cambia en `consumoMinimoPorAsistente`.
 
 **Horario:** 1:00 p. m. a 10:30 p. m. Las horas de inicio se calculan para que
 todas las actividades elegidas terminen antes del cierre; con Art splash solo se
