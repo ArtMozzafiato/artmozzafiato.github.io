@@ -27,7 +27,8 @@ export const config = {
   personas: {
     // Todos los que vienen al evento: niños y adultos.
     asistentes: { minimo: 1, maximo: 150, porDefecto: 15 },
-    // Los que hacen las actividades (siempre ≤ asistentes).
+    // Personas en cada actividad: se elige por actividad y nunca supera a
+    // los asistentes. porDefecto es el valor inicial al marcarla.
     participantes: { minimo: 1, maximo: 60, porDefecto: 8 },
   },
 

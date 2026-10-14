@@ -9,9 +9,10 @@ negocio con todo el detalle.
 
 1. Elige **fecha y hora**. La app indica si es tarifa entre semana o de fin de
    semana/festivo (los festivos de Colombia se calculan solos).
-2. Indica cuántos **asistentes** vienen al evento (niños y adultos) y cuántos de
-   ellos **hacen actividades**.
-3. Marca una o varias **actividades**; los precios se actualizan al instante.
+2. Indica cuántos **asistentes** vienen al evento (niños y adultos).
+3. Marca una o varias **actividades** y, en cada una, cuántas personas la harán
+   (nunca más que los asistentes). Los precios se actualizan al instante; la
+   oferta de grupo de Art splash depende de cuántos hacen Art splash.
 4. Llena sus **datos** y el del cumpleañero.
 5. Toca **Enviar por WhatsApp**: se abre un chat con el negocio y el mensaje listo.
 

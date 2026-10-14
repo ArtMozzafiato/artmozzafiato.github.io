@@ -13,12 +13,16 @@ export function buildMessage(data, quote, config) {
     `📅 Fecha: ${formatLongDate(data.date)} (${dayType})`,
     `🕒 Hora: ${data.time}`,
     `👥 Asistentes al evento: ${quote.attendees}`,
-    `🎨 Hacen actividades: ${data.people}`,
     `⏱️ Estancia aprox.: ${formatDuration(quote.stayMinutes)}`,
     '',
     '*Cotización:*',
     ...quote.lines.map((line) => {
-      const qty = line.quantity > 1 ? ` (${line.quantity} × ${formatCOP(line.unit)})` : '';
+      const qty =
+        line.kind === 'actividad'
+          ? ` (${line.quantity} ${line.quantity === 1 ? 'persona' : 'personas'} × ${formatCOP(line.unit)})`
+          : line.quantity > 1
+            ? ` (${line.quantity} × ${formatCOP(line.unit)})`
+            : '';
       const approx = line.approximate ? ' aprox.' : '';
       return `• ${line.name}${qty}: ${formatCOP(line.subtotal)}${approx}`;
     }),

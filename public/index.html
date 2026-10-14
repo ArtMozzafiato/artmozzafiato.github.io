@@ -70,9 +70,8 @@
         </section>
 
         <section class="card">
-          <h2 class="card__title"><span class="step">2</span> Personas</h2>
+          <h2 class="card__title"><span class="step">2</span> Asistentes al evento</h2>
           <div class="counter">
-            <span class="field__label">Asistentes al evento</span>
             <div class="stepper">
               <button type="button" class="stepper__btn" data-target="attendees" data-step="-1" aria-label="Quitar un asistente">−</button>
               <input type="number" id="attendees" name="attendees" inputmode="numeric" required aria-label="Asistentes al evento" />
@@ -80,20 +79,11 @@
             </div>
             <p class="hint">Todos los que vienen: niños y adultos, incluido el cumpleañero.</p>
           </div>
-          <div class="counter">
-            <span class="field__label">Hacen actividades</span>
-            <div class="stepper">
-              <button type="button" class="stepper__btn" data-target="people" data-step="-1" aria-label="Quitar una persona">−</button>
-              <input type="number" id="people" name="people" inputmode="numeric" required aria-label="Personas que hacen actividades" />
-              <button type="button" class="stepper__btn" data-target="people" data-step="1" aria-label="Agregar una persona">+</button>
-            </div>
-            <p class="hint">Cuántos de ellos harán las actividades. El precio de las actividades es por cada uno.</p>
-          </div>
         </section>
 
         <section class="card">
           <h2 class="card__title"><span class="step">3</span> Actividades</h2>
-          <p class="hint">Puedes elegir una o varias. El precio es por persona.</p>
+          <p class="hint">Puedes elegir una o varias. En cada una indica cuántas personas la harán; el precio es por persona.</p>
           <div id="activities" class="options"></div>
           <p id="activities-error" class="error" hidden>Elige al menos una actividad.</p>
         </section>

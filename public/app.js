@@ -9,7 +9,6 @@ const $ = (selector) => document.querySelector(selector);
 const form = $('#quote-form');
 const dateInput = $('#date');
 const timeSelect = $('#time');
-const peopleInput = $('#people');
 const attendeesInput = $('#attendees');
 const activitiesBox = $('#activities');
 const extrasBox = $('#extras');
@@ -29,39 +28,57 @@ function setupDateLimits() {
 }
 
 const clamp = (n, { minimo, maximo }) => Math.min(maximo, Math.max(minimo, Math.round(n) || minimo));
-const clampPeople = (n) => clamp(n, config.personas.participantes);
 const clampAttendees = (n) => clamp(n, config.personas.asistentes);
+// Las personas de cada actividad también son asistentes: nunca más que ellos.
+const clampActivity = (n, attendees) =>
+  clamp(n, { minimo: config.personas.participantes.minimo, maximo: Math.min(attendees, config.personas.participantes.maximo) });
 
-// Quienes hacen actividades también son asistentes: si uno cambia, el otro
-// se ajusta para que nunca haya más participantes que asistentes.
-function setCounts(changed) {
-  let people = clampPeople(Number(peopleInput.value));
-  let attendees = clampAttendees(Number(attendeesInput.value));
-  if (people > attendees) {
-    if (changed === 'people') attendees = clampAttendees(people);
-    else people = attendees;
-  }
-  peopleInput.value = people;
+const countInputs = () => [...activitiesBox.querySelectorAll('.count-input')];
+
+// Ajusta asistentes y personas por actividad a sus límites y recalcula.
+function setCounts() {
+  const attendees = clampAttendees(Number(attendeesInput.value));
   attendeesInput.value = attendees;
+  for (const input of countInputs()) {
+    input.max = attendees;
+    input.value = clampActivity(Number(input.value), attendees);
+  }
   render();
 }
 
 function setupPeople() {
-  const { asistentes, participantes } = config.personas;
+  const { asistentes } = config.personas;
   Object.assign(attendeesInput, { min: asistentes.minimo, max: asistentes.maximo, value: asistentes.porDefecto });
-  Object.assign(peopleInput, { min: participantes.minimo, max: participantes.maximo, value: participantes.porDefecto });
-  document.querySelectorAll('[data-step]').forEach((button) => {
-    button.addEventListener('click', () => {
-      const input = button.dataset.target === 'attendees' ? attendeesInput : peopleInput;
-      input.value = Number(input.value || 0) + Number(button.dataset.step);
-      setCounts(button.dataset.target);
-    });
+  // Un solo manejador para todos los botones − / + (asistentes y actividades).
+  form.addEventListener('click', (event) => {
+    const button = event.target.closest('[data-step]');
+    if (!button) return;
+    const input = button.dataset.target === 'attendees' ? attendeesInput : $(`#count-${button.dataset.target}`);
+    input.value = Number(input.value || 0) + Number(button.dataset.step);
+    setCounts();
   });
-  peopleInput.addEventListener('change', () => setCounts('people'));
-  attendeesInput.addEventListener('change', () => setCounts('attendees'));
+  form.addEventListener('change', (event) => {
+    if (event.target === attendeesInput || event.target.classList.contains('count-input')) setCounts();
+  });
 }
 
-function optionTemplate({ name, value, emoji, title, description, meta, photos }) {
+function countTemplate(activity) {
+  const row = document.createElement('div');
+  row.className = 'option__count';
+  row.hidden = true;
+  const start = Math.min(config.personas.participantes.porDefecto, config.personas.asistentes.porDefecto);
+  row.innerHTML = `
+    <label class="option__count-label" for="count-${activity.id}">Personas en esta actividad</label>
+    <div class="stepper stepper--small">
+      <button type="button" class="stepper__btn" data-target="${activity.id}" data-step="-1" aria-label="Quitar una persona de ${activity.nombre}">−</button>
+      <input type="number" class="count-input" id="count-${activity.id}" data-activity="${activity.id}"
+        inputmode="numeric" min="1" value="${start}" />
+      <button type="button" class="stepper__btn" data-target="${activity.id}" data-step="1" aria-label="Agregar una persona a ${activity.nombre}">+</button>
+    </div>`;
+  return row;
+}
+
+function optionTemplate({ name, value, emoji, title, description, meta, photos, extra }) {
   const card = document.createElement('div');
   card.className = 'option-card';
   const label = document.createElement('label');
@@ -80,6 +97,7 @@ function optionTemplate({ name, value, emoji, title, description, meta, photos }
   label.querySelector('.option__desc').textContent = description ?? '';
   if (meta) label.querySelector('.option__meta').textContent = meta;
   card.append(label);
+  if (extra) card.append(extra);
   // El carrusel va fuera del <label> para que deslizar no marque la casilla.
   if (photos?.length) card.append(createCarousel(photos, { label: `Fotos de ${title}` }));
   return card;
@@ -106,6 +124,7 @@ function setupOptions() {
         description: activity.descripcion,
         meta: `⏱ ${formatDuration(activity.duracionMinutos)}${activity.duracionLibre ? ' aprox. · tiempo libre' : ''}`,
         photos: activity.fotos,
+        extra: countTemplate(activity),
       })
     );
   }
@@ -135,10 +154,14 @@ const checkedValues = (name) =>
   [...form.querySelectorAll(`input[name="${name}"]:checked`)].map((input) => input.value);
 
 function readState() {
+  const attendees = clampAttendees(Number(attendeesInput.value));
+  const activityPeople = Object.fromEntries(
+    countInputs().map((input) => [input.dataset.activity, clampActivity(Number(input.value), attendees)])
+  );
   return {
     date: parseDate(dateInput.value),
-    people: clampPeople(Number(peopleInput.value)),
-    attendees: clampAttendees(Number(attendeesInput.value)),
+    attendees,
+    activityPeople,
     activityIds: checkedValues('activity'),
     extraIds: checkedValues('extra'),
   };
@@ -177,7 +200,7 @@ function renderOptionPrices(state) {
   const info = state.date ? dayInfo(state.date, config) : { isWeekend: false };
   for (const activity of config.actividades) {
     const el = activitiesBox.querySelector(`[data-price-for="${activity.id}"]`);
-    const { amount, note } = unitPrice(activity, state.people, info);
+    const { amount, note } = unitPrice(activity, state.activityPeople[activity.id], info);
     const prefix = activity.aproximado ? '<small>desde</small>' : '';
     let detail = activity.aproximado ? 'aprox. c/u' : 'por persona';
     if (typeof activity.precio === 'object' && !state.date) detail = 'lun a jue · elige fecha';
@@ -188,7 +211,10 @@ function renderOptionPrices(state) {
     extrasBox.querySelector(`[data-price-for="${extra.id}"]`).textContent = formatCOP(extra.precio);
   }
   form.querySelectorAll('.option-card').forEach((card) => {
-    card.classList.toggle('is-checked', card.querySelector('input').checked);
+    const checked = card.querySelector('input[type="checkbox"]').checked;
+    card.classList.toggle('is-checked', checked);
+    const count = card.querySelector('.option__count');
+    if (count) count.hidden = !checked;
   });
 }
 
@@ -205,8 +231,11 @@ function renderSummary(state, quote) {
       const left = document.createElement('div');
       left.textContent = line.name;
       const detail = document.createElement('small');
-      detail.textContent =
-        `${line.quantity} × ${formatCOP(line.unit)}` + (line.note ? ` · ${line.note}` : '');
+      const qty =
+        line.kind === 'actividad'
+          ? `${line.quantity} ${line.quantity === 1 ? 'persona' : 'personas'}`
+          : line.quantity;
+      detail.textContent = `${qty} × ${formatCOP(line.unit)}` + (line.note ? ` · ${line.note}` : '');
       left.append(detail);
       const right = document.createElement('strong');
       right.textContent = formatCOP(line.subtotal) + (line.approximate ? '*' : '');
@@ -329,7 +358,7 @@ form.addEventListener('submit', (event) => {
 
 form.addEventListener('input', (event) => {
   event.target.classList?.remove('invalid');
-  if (event.target !== peopleInput && event.target !== attendeesInput) render();
+  if (event.target !== attendeesInput && !event.target.classList.contains('count-input')) render();
 });
 
 // ---------- Instalación (PWA) ----------

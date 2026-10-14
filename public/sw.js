@@ -1,7 +1,7 @@
 // Service worker: permite abrir la app sin conexión.
 // Usa "red primero" para que los cambios de precios lleguen de inmediato,
 // y la copia guardada solo cuando no hay internet.
-const CACHE = 'mozzafiato-v9';
+const CACHE = 'mozzafiato-v10';
 const ASSETS = [
   './',
   'index.html',

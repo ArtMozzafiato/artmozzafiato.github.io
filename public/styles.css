@@ -292,7 +292,28 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--g
 .summary__balance-head { display: flex; justify-content: space-between; gap: 12px; font-weight: 700; }
 .summary__balance-head strong { color: var(--gold); white-space: nowrap; }
 .summary__balance small { display: block; margin-top: 6px; color: var(--muted); line-height: 1.4; }
-.counter + .counter { margin-top: 18px; }
+.option__count[hidden] { display: none; }
+.option__count {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 12px;
+  margin: 0 14px 14px;
+  padding: 10px 12px;
+  border: 1px dashed var(--gold);
+  border-radius: var(--radius);
+}
+.option__count-label {
+  font-weight: 700;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--gold);
+}
+.stepper--small { gap: 6px; }
+.stepper--small .stepper__btn { width: 40px; height: 40px; font-size: 1.3rem; }
+.stepper--small input { max-width: 70px; min-height: 40px; padding: 6px; font-size: 1.15rem; }
 .counter > .field__label { display: block; margin-bottom: 8px; }
 .summary__empty { color: var(--muted); margin: 0; }
 .fineprint { color: var(--muted); font-size: 0.8rem; margin: 14px 0 0; }
@@ -389,6 +410,11 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--g
 
 /* Celulares pequeños (iPhone SE, Android compactos) */
 @media (max-width: 370px) {
+  /* El precio baja debajo de la descripción para que el nombre no se parta */
+  .option { flex-wrap: wrap; }
+  .option__body { flex: 1 1 0; }
+  .option__price { flex-basis: 100%; text-align: left; padding-left: 74px; }
+  .option__price small { display: inline; margin-left: 6px; max-width: none; white-space: nowrap; }
   .bar { padding-left: 12px; padding-right: 12px; gap: 8px; }
   .bar__total strong { font-size: 1.15rem; }
   .bar__btn { padding: 13px 12px; font-size: 0.74rem; }
