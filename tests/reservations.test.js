@@ -32,5 +32,5 @@ test('la reserva lleva fecha, hora, personas por actividad y totales', () => {
   assert.equal(r.asistentes, 20);
   assert.equal(r.total, 1200000);
   assert.equal(r.saldo, 415000);
-  assert.equal(r.estanciaMin, 90);
+  assert.equal(r.estanciaMin, 210); // 90 min de actividades + 2 h de celebración
 });

@@ -1,5 +1,5 @@
 import { holidayName } from './holidays.js';
-import { stayMinutes, onTheHourOnly } from './schedule.js';
+import { activityMinutes, stayMinutes, onTheHourOnly } from './schedule.js';
 
 const DAY_NAMES = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
 
@@ -94,6 +94,7 @@ export function buildQuote(
     balance,
     total: subtotal + balance,
     approximate: lines.some((line) => line.approximate),
+    activityMinutes: activityMinutes(activityIds, config),
     stayMinutes: stayMinutes(activityIds, config),
     needsRoom: onTheHourOnly(activityIds, config),
   };

@@ -281,6 +281,8 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--g
   font-size: 0.9rem;
 }
 .summary__stay strong { color: var(--gold); white-space: nowrap; }
+.summary__stay { flex-wrap: wrap; }
+.summary__stay-detail { flex-basis: 100%; color: var(--muted); font-size: 0.8rem; }
 .summary__row--sub { font-weight: 700; border-bottom: none; }
 .summary__balance {
   margin-top: 6px;

@@ -287,6 +287,14 @@ function renderSummary(state, quote) {
     const stay = document.createElement('p');
     stay.className = 'summary__stay';
     stay.innerHTML = `<span>Estancia promedio aprox.</span><strong>${formatDuration(quote.stayMinutes)}</strong>`;
+    if (config.celebracionMinutos) {
+      const breakdown = document.createElement('small');
+      breakdown.className = 'summary__stay-detail';
+      breakdown.textContent = `Actividades ${formatDuration(quote.activityMinutes)} + ${formatDuration(
+        config.celebracionMinutos
+      )} para partir la torta, repartir regalos y compartir.`;
+      stay.append(breakdown);
+    }
     summary.append(stay);
 
     if (quote.needsRoom) {

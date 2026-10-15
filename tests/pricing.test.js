@@ -99,7 +99,7 @@ test('mensaje de WhatsApp incluye el detalle', () => {
   assert.match(text, /Sofía \(7 años\)/);
   assert.match(text, /sábado/);
   assert.match(text, /Mozzafiato Pizzería/);
-  assert.match(text, /Estancia aprox.: 1 h 10 min/);
+  assert.match(text, /Estancia aprox.: 3 h 10 min \(actividades 1 h 10 min \+ 2 h de celebración\)/);
   assert.match(text, /confirmar sala disponible/);
   assert.match(text, /Total estimado: \$\s?640\.000/);
 });

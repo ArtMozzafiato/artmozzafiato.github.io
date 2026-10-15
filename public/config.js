@@ -45,6 +45,10 @@ export const config = {
     intervaloMinutos: 30,
   },
 
+  // Tiempo promedio de celebración después de las actividades: partir la
+  // torta, repartir regalos y compartir. Se suma a la estancia.
+  celebracionMinutos: 120,
+
   // Carrusel que se muestra arriba, apenas el cliente abre el link.
   // Las fotos van en la carpeta public/fotos (verticales 4:5, 900×1125).
   historia: {

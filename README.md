@@ -33,9 +33,12 @@ de neón, dos velas volcán, deditos de queso y una bebida).
 consumir en el restaurante**. Si las actividades ya cubren ese monto, no se
 muestra saldo. El valor se cambia en `consumoMinimoPorAsistente`.
 
+**Estancia:** duración de las actividades + **2 horas de celebración** (partir
+la torta, repartir regalos y compartir). Se cambia en `celebracionMinutos`.
+
 **Horario:** 1:00 p. m. a 10:30 p. m. Las horas de inicio se calculan para que
-todas las actividades elegidas terminen antes del cierre; con Art splash solo se
-ofrecen horas en punto. La cotización muestra la estancia promedio aproximada.
+la estancia completa termine antes del cierre; con Art splash solo se ofrecen
+horas en punto.
 
 ## Cambiar precios, horarios, extras o WhatsApp
 

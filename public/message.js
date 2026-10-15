@@ -13,7 +13,10 @@ export function buildMessage(data, quote, config) {
     `📅 Fecha: ${formatLongDate(data.date)} (${dayType})`,
     `🕒 Hora: ${data.time}`,
     `👥 Asistentes al evento: ${quote.attendees}`,
-    `⏱️ Estancia aprox.: ${formatDuration(quote.stayMinutes)}`,
+    `⏱️ Estancia aprox.: ${formatDuration(quote.stayMinutes)}` +
+      (config.celebracionMinutos
+        ? ` (actividades ${formatDuration(quote.activityMinutes)} + ${formatDuration(config.celebracionMinutos)} de celebración)`
+        : ''),
     '',
     '*Cotización:*',
     ...quote.lines.map((line) => {
