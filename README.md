@@ -9,8 +9,10 @@ negocio con todo el detalle.
 
 1. Elige **fecha y hora**. La app indica si es tarifa entre semana o de fin de
    semana/festivo (los festivos de Colombia se calculan solos).
-2. Elige el **número de personas**.
-3. Marca una o varias **actividades**; los precios se actualizan al instante.
+2. Indica cuántos **asistentes** vienen al evento (niños y adultos).
+3. Marca una o varias **actividades** y, en cada una, cuántas personas la harán
+   (nunca más que los asistentes). Los precios se actualizan al instante; la
+   oferta de grupo de Art splash depende de cuántos hacen Art splash.
 4. Llena sus **datos** y el del cumpleañero.
 5. Toca **Enviar por WhatsApp**: se abre un chat con el negocio y el mensaje listo.
 
@@ -26,9 +28,17 @@ negocio con todo el detalle.
 **Extra:** Decoración Pablo, $35.000 por reserva (personaje Pablo con estructura
 de neón, dos velas volcán, deditos de queso y una bebida).
 
+**Consumo mínimo:** $60.000 por asistente. La cotización calcula
+`asistentes × 60.000 − (actividades + extras)` y lo muestra como **saldo para
+consumir en el restaurante**. Si las actividades ya cubren ese monto, no se
+muestra saldo. El valor se cambia en `consumoMinimoPorAsistente`.
+
+**Estancia:** duración de las actividades + **2 horas de celebración** (partir
+la torta, repartir regalos y compartir). Se cambia en `celebracionMinutos`.
+
 **Horario:** 1:00 p. m. a 10:30 p. m. Las horas de inicio se calculan para que
-todas las actividades elegidas terminen antes del cierre; con Art splash solo se
-ofrecen horas en punto. La cotización muestra la estancia promedio aproximada.
+la estancia completa termine antes del cierre; con Art splash solo se ofrecen
+horas en punto.
 
 ## Cambiar precios, horarios, extras o WhatsApp
 
@@ -44,6 +54,25 @@ se publica sola en uno o dos minutos.
 - Las fotos van en `public/fotos/`, verticales 4:5 (900×1125 px, JPG de ~100–200 KB)
   para que carguen rápido con datos móviles. Al tocarlas se ven en grande.
 - Usa solo fotos de niños con autorización de sus padres (Ley 1581 de 2012).
+
+## Reservas en Google Drive y Calendar
+
+La hoja **Reservas Mozzafiato** (Google Drive) recibe cada cotización enviada y
+la pone en el Google Calendar del dueño de la hoja:
+
+- Al tocar *Enviar por WhatsApp* se agrega una fila con Estado **Pendiente** y se
+  crea el evento "⏳ Por confirmar" a la hora elegida, con la duración de la estancia.
+- Cambiar el Estado a **Confirmada** marca el evento con ✅; **Cancelada** lo borra.
+- La app no ofrece horas de Art splash con las 2 salas ocupadas por reservas
+  **Confirmadas** de ese día.
+
+Instalación: el código está en [`apps-script/Codigo.gs`](apps-script/Codigo.gs), con
+los pasos al inicio del archivo. La URL de la aplicación web (termina en `/exec`)
+va en `reservas.url` de `public/config.js`. Si está vacía, la app funciona solo
+con WhatsApp.
+
+La URL es pública: cualquiera que la conozca podría enviar filas falsas. Por eso
+las reservas entran como Pendientes y solo las Confirmadas bloquean salas.
 
 ## Línea gráfica
 

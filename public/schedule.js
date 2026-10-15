@@ -28,8 +28,12 @@ export function formatDuration(minutes) {
 const selected = (activityIds, config) =>
   config.actividades.filter((activity) => activityIds.includes(activity.id));
 
-export const stayMinutes = (activityIds, config) =>
+export const activityMinutes = (activityIds, config) =>
   selected(activityIds, config).reduce((sum, activity) => sum + (activity.duracionMinutos ?? 0), 0);
+
+// Estancia = actividades + tiempo de celebración (torta, regalos, compartir).
+export const stayMinutes = (activityIds, config) =>
+  activityMinutes(activityIds, config) + (config.celebracionMinutos ?? 0);
 
 export const onTheHourOnly = (activityIds, config) =>
   selected(activityIds, config).some((activity) => activity.soloEnPunto);

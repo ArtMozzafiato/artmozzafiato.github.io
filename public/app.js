@@ -1,15 +1,16 @@
 import { config } from './config.js';
 import { buildQuote, dayInfo, formatCOP, parseDate, unitPrice } from './pricing.js';
 import { buildMessage, whatsappUrl } from './message.js';
-import { formatDuration, startTimes } from './schedule.js';
+import { formatDuration, startTimes, timeLabel } from './schedule.js';
 import { createCarousel } from './gallery.js';
+import { buildReservation, fullSplashHours, sendReservation } from './reservations.js';
 
 const $ = (selector) => document.querySelector(selector);
 
 const form = $('#quote-form');
 const dateInput = $('#date');
 const timeSelect = $('#time');
-const peopleInput = $('#people');
+const attendeesInput = $('#attendees');
 const activitiesBox = $('#activities');
 const extrasBox = $('#extras');
 const activeExtras = config.extras.filter((extra) => extra.activo);
@@ -27,26 +28,58 @@ function setupDateLimits() {
   dateInput.max = toInputValue(max);
 }
 
+const clamp = (n, { minimo, maximo }) => Math.min(maximo, Math.max(minimo, Math.round(n) || minimo));
+const clampAttendees = (n) => clamp(n, config.personas.asistentes);
+// Las personas de cada actividad también son asistentes: nunca más que ellos.
+const clampActivity = (n, attendees) =>
+  clamp(n, { minimo: config.personas.participantes.minimo, maximo: Math.min(attendees, config.personas.participantes.maximo) });
+
+const countInputs = () => [...activitiesBox.querySelectorAll('.count-input')];
+
+// Ajusta asistentes y personas por actividad a sus límites y recalcula.
+function setCounts() {
+  const attendees = clampAttendees(Number(attendeesInput.value));
+  attendeesInput.value = attendees;
+  for (const input of countInputs()) {
+    input.max = attendees;
+    input.value = clampActivity(Number(input.value), attendees);
+  }
+  render();
+}
+
 function setupPeople() {
-  const { minimo, maximo, porDefecto } = config.personas;
-  Object.assign(peopleInput, { min: minimo, max: maximo, value: porDefecto });
-  document.querySelectorAll('[data-step]').forEach((button) => {
-    button.addEventListener('click', () => {
-      const next = clampPeople(Number(peopleInput.value || 0) + Number(button.dataset.step));
-      peopleInput.value = next;
-      render();
-    });
+  const { asistentes } = config.personas;
+  Object.assign(attendeesInput, { min: asistentes.minimo, max: asistentes.maximo, value: asistentes.porDefecto });
+  // Un solo manejador para todos los botones − / + (asistentes y actividades).
+  form.addEventListener('click', (event) => {
+    const button = event.target.closest('[data-step]');
+    if (!button) return;
+    const input = button.dataset.target === 'attendees' ? attendeesInput : $(`#count-${button.dataset.target}`);
+    input.value = Number(input.value || 0) + Number(button.dataset.step);
+    setCounts();
   });
-  peopleInput.addEventListener('change', () => {
-    peopleInput.value = clampPeople(Number(peopleInput.value));
-    render();
+  form.addEventListener('change', (event) => {
+    if (event.target === attendeesInput || event.target.classList.contains('count-input')) setCounts();
   });
 }
 
-const clampPeople = (n) =>
-  Math.min(config.personas.maximo, Math.max(config.personas.minimo, Math.round(n) || config.personas.minimo));
+function countTemplate(activity) {
+  const row = document.createElement('div');
+  row.className = 'option__count';
+  row.hidden = true;
+  const start = Math.min(config.personas.participantes.porDefecto, config.personas.asistentes.porDefecto);
+  row.innerHTML = `
+    <label class="option__count-label" for="count-${activity.id}">Personas en esta actividad</label>
+    <div class="stepper stepper--small">
+      <button type="button" class="stepper__btn" data-target="${activity.id}" data-step="-1" aria-label="Quitar una persona de ${activity.nombre}">−</button>
+      <input type="number" class="count-input" id="count-${activity.id}" data-activity="${activity.id}"
+        inputmode="numeric" min="1" value="${start}" />
+      <button type="button" class="stepper__btn" data-target="${activity.id}" data-step="1" aria-label="Agregar una persona a ${activity.nombre}">+</button>
+    </div>`;
+  return row;
+}
 
-function optionTemplate({ name, value, emoji, title, description, meta, photos }) {
+function optionTemplate({ name, value, emoji, title, description, meta, photos, extra }) {
   const card = document.createElement('div');
   card.className = 'option-card';
   const label = document.createElement('label');
@@ -65,6 +98,7 @@ function optionTemplate({ name, value, emoji, title, description, meta, photos }
   label.querySelector('.option__desc').textContent = description ?? '';
   if (meta) label.querySelector('.option__meta').textContent = meta;
   card.append(label);
+  if (extra) card.append(extra);
   // El carrusel va fuera del <label> para que deslizar no marque la casilla.
   if (photos?.length) card.append(createCarousel(photos, { label: `Fotos de ${title}` }));
   return card;
@@ -91,6 +125,7 @@ function setupOptions() {
         description: activity.descripcion,
         meta: `⏱ ${formatDuration(activity.duracionMinutos)}${activity.duracionLibre ? ' aprox. · tiempo libre' : ''}`,
         photos: activity.fotos,
+        extra: countTemplate(activity),
       })
     );
   }
@@ -120,9 +155,14 @@ const checkedValues = (name) =>
   [...form.querySelectorAll(`input[name="${name}"]:checked`)].map((input) => input.value);
 
 function readState() {
+  const attendees = clampAttendees(Number(attendeesInput.value));
+  const activityPeople = Object.fromEntries(
+    countInputs().map((input) => [input.dataset.activity, clampActivity(Number(input.value), attendees)])
+  );
   return {
     date: parseDate(dateInput.value),
-    people: clampPeople(Number(peopleInput.value)),
+    attendees,
+    activityPeople,
     activityIds: checkedValues('activity'),
     extraIds: checkedValues('extra'),
   };
@@ -144,9 +184,22 @@ function renderDayBadge(date) {
 
 // Las horas dependen de las actividades: Art splash solo en punto y todo
 // debe terminar antes del cierre.
+let splashFull = { date: '', hours: [] };
+
+// Pide a la hoja las horas con salas de Art splash llenas para la fecha elegida.
+async function refreshSplashAvailability() {
+  const dateValue = dateInput.value;
+  const hours = await fullSplashHours(config, dateValue);
+  if (dateInput.value !== dateValue) return; // cambió la fecha mientras tanto
+  splashFull = { date: dateValue, hours };
+  render();
+}
+
 function renderTimes(state) {
   const previous = timeSelect.value;
-  const times = startTimes(state.activityIds, config);
+  const splashChosen = config.actividades.some((a) => a.soloEnPunto && state.activityIds.includes(a.id));
+  const blocked = splashChosen && splashFull.date === dateInput.value ? splashFull.hours : [];
+  const times = startTimes(state.activityIds, config).filter((t) => !blocked.includes(t.value));
   timeSelect.replaceChildren(new Option('Elige una hora', ''));
   for (const { value, label } of times) timeSelect.add(new Option(label, value));
   if (times.some((t) => t.value === previous)) timeSelect.value = previous;
@@ -154,14 +207,17 @@ function renderTimes(state) {
   const hint = $('#time-hint');
   const splash = config.actividades.find((a) => a.soloEnPunto && state.activityIds.includes(a.id));
   hint.hidden = !splash;
-  if (splash) hint.textContent = `${splash.nombre} empieza en punto. ${splash.notaSala}`;
+  if (splash) {
+    hint.textContent = `${splash.nombre} empieza en punto. ${splash.notaSala}` +
+      (blocked.length ? ` Sin sala disponible ese día: ${blocked.map((h) => timeLabel(h)).join(', ')}` : '');
+  }
 }
 
 function renderOptionPrices(state) {
   const info = state.date ? dayInfo(state.date, config) : { isWeekend: false };
   for (const activity of config.actividades) {
     const el = activitiesBox.querySelector(`[data-price-for="${activity.id}"]`);
-    const { amount, note } = unitPrice(activity, state.people, info);
+    const { amount, note } = unitPrice(activity, state.activityPeople[activity.id], info);
     const prefix = activity.aproximado ? '<small>desde</small>' : '';
     let detail = activity.aproximado ? 'aprox. c/u' : 'por persona';
     if (typeof activity.precio === 'object' && !state.date) detail = 'lun a jue · elige fecha';
@@ -172,7 +228,10 @@ function renderOptionPrices(state) {
     extrasBox.querySelector(`[data-price-for="${extra.id}"]`).textContent = formatCOP(extra.precio);
   }
   form.querySelectorAll('.option-card').forEach((card) => {
-    card.classList.toggle('is-checked', card.querySelector('input').checked);
+    const checked = card.querySelector('input[type="checkbox"]').checked;
+    card.classList.toggle('is-checked', checked);
+    const count = card.querySelector('.option__count');
+    if (count) count.hidden = !checked;
   });
 }
 
@@ -189,14 +248,37 @@ function renderSummary(state, quote) {
       const left = document.createElement('div');
       left.textContent = line.name;
       const detail = document.createElement('small');
-      detail.textContent =
-        `${line.quantity} × ${formatCOP(line.unit)}` + (line.note ? ` · ${line.note}` : '');
+      const qty =
+        line.kind === 'actividad'
+          ? `${line.quantity} ${line.quantity === 1 ? 'persona' : 'personas'}`
+          : line.quantity;
+      detail.textContent = `${qty} × ${formatCOP(line.unit)}` + (line.note ? ` · ${line.note}` : '');
       left.append(detail);
       const right = document.createElement('strong');
       right.textContent = formatCOP(line.subtotal) + (line.approximate ? '*' : '');
       row.append(left, right);
       summary.append(row);
     }
+    if (quote.balance > 0) {
+      const sub = document.createElement('div');
+      sub.className = 'summary__row summary__row--sub';
+      sub.innerHTML = `<span>Subtotal actividades y extras</span><strong>${formatCOP(quote.subtotal)}</strong>`;
+      summary.append(sub);
+
+      const balance = document.createElement('div');
+      balance.className = 'summary__balance';
+      balance.innerHTML = `
+        <div class="summary__balance-head">
+          <span>🍕 Saldo para consumir en el restaurante</span>
+          <strong>${formatCOP(quote.balance)}</strong>
+        </div>
+        <small>Consumo mínimo del evento: ${quote.attendees} asistentes × ${formatCOP(
+          config.consumoMinimoPorAsistente
+        )} = ${formatCOP(quote.minimumSpend)}, menos ${formatCOP(quote.subtotal)} de actividades y extras.
+        Lo disfrutan en pizzas, hamburguesas y bebidas durante el evento.</small>`;
+      summary.append(balance);
+    }
+
     const total = document.createElement('div');
     total.className = 'summary__total';
     total.innerHTML = `<span>Total${quote.approximate ? ' aprox.' : ''}</span><span>${formatCOP(quote.total)}</span>`;
@@ -205,6 +287,14 @@ function renderSummary(state, quote) {
     const stay = document.createElement('p');
     stay.className = 'summary__stay';
     stay.innerHTML = `<span>Estancia promedio aprox.</span><strong>${formatDuration(quote.stayMinutes)}</strong>`;
+    if (config.celebracionMinutos) {
+      const breakdown = document.createElement('small');
+      breakdown.className = 'summary__stay-detail';
+      breakdown.textContent = `Actividades ${formatDuration(quote.activityMinutes)} + ${formatDuration(
+        config.celebracionMinutos
+      )} para partir la torta, repartir regalos y compartir.`;
+      stay.append(breakdown);
+    }
     summary.append(stay);
 
     if (quote.needsRoom) {
@@ -288,12 +378,29 @@ form.addEventListener('submit', (event) => {
     quote,
     config
   );
+  sendReservation(
+    config,
+    buildReservation(
+      {
+        dateValue: dateInput.value,
+        timeValue: timeSelect.value,
+        birthdayName: $('#birthday-name').value.trim(),
+        birthdayAge: $('#birthday-age').value.trim(),
+        contactName: $('#contact-name').value.trim(),
+        contactPhone: $('#contact-phone').value.trim(),
+        comments: $('#comments').value.trim(),
+      },
+      quote
+    )
+  );
   window.location.href = whatsappUrl(config.negocio.whatsapp, text);
 });
 
+dateInput.addEventListener('change', refreshSplashAvailability);
+
 form.addEventListener('input', (event) => {
   event.target.classList?.remove('invalid');
-  if (event.target !== peopleInput) render();
+  if (event.target !== attendeesInput && !event.target.classList.contains('count-input')) render();
 });
 
 // ---------- Instalación (PWA) ----------

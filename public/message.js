@@ -12,15 +12,30 @@ export function buildMessage(data, quote, config) {
     `🎂 Cumpleañero: ${data.birthdayName} (${data.birthdayAge} años)`,
     `📅 Fecha: ${formatLongDate(data.date)} (${dayType})`,
     `🕒 Hora: ${data.time}`,
-    `👥 Personas: ${data.people}`,
-    `⏱️ Estancia aprox.: ${formatDuration(quote.stayMinutes)}`,
+    `👥 Asistentes al evento: ${quote.attendees}`,
+    `⏱️ Estancia aprox.: ${formatDuration(quote.stayMinutes)}` +
+      (config.celebracionMinutos
+        ? ` (actividades ${formatDuration(quote.activityMinutes)} + ${formatDuration(config.celebracionMinutos)} de celebración)`
+        : ''),
     '',
     '*Cotización:*',
     ...quote.lines.map((line) => {
-      const qty = line.quantity > 1 ? ` (${line.quantity} × ${formatCOP(line.unit)})` : '';
+      const qty =
+        line.kind === 'actividad'
+          ? ` (${line.quantity} ${line.quantity === 1 ? 'persona' : 'personas'} × ${formatCOP(line.unit)})`
+          : line.quantity > 1
+            ? ` (${line.quantity} × ${formatCOP(line.unit)})`
+            : '';
       const approx = line.approximate ? ' aprox.' : '';
       return `• ${line.name}${qty}: ${formatCOP(line.subtotal)}${approx}`;
     }),
+    ...(quote.balance > 0
+      ? [
+          `Subtotal actividades y extras: ${formatCOP(quote.subtotal)}`,
+          `🍕 Saldo para consumir en el restaurante: ${formatCOP(quote.balance)}`,
+          `   (consumo mínimo ${quote.attendees} × ${formatCOP(config.consumoMinimoPorAsistente)} = ${formatCOP(quote.minimumSpend)})`,
+        ]
+      : []),
     '',
     `*Total estimado: ${formatCOP(quote.total)}${quote.approximate ? ' aprox.' : ''}*`,
     '',

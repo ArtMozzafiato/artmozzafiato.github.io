@@ -1,5 +1,5 @@
 import { holidayName } from './holidays.js';
-import { stayMinutes, onTheHourOnly } from './schedule.js';
+import { activityMinutes, stayMinutes, onTheHourOnly } from './schedule.js';
 
 const DAY_NAMES = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
 
@@ -39,21 +39,26 @@ export function unitPrice(activity, people, info) {
   return { amount: precio.finDeSemana, note: 'Tarifa fin de semana / festivo' };
 }
 
-export function buildQuote({ date, people, activityIds, extraIds = [] }, config) {
+// activityPeople: { idActividad: personas }. Si falta, se usa people.
+export function buildQuote(
+  { date, people = 0, attendees = 0, activityIds, activityPeople = {}, extraIds = [] },
+  config
+) {
   const info = date ? dayInfo(date, config) : null;
   const lines = [];
 
   for (const activity of config.actividades) {
     if (!activityIds.includes(activity.id)) continue;
     // Sin fecha se usa la tarifa entre semana como referencia.
-    const { amount, note } = unitPrice(activity, people, info ?? { isWeekend: false });
+    const quantity = activityPeople[activity.id] ?? people;
+    const { amount, note } = unitPrice(activity, quantity, info ?? { isWeekend: false });
     lines.push({
       kind: 'actividad',
       id: activity.id,
       name: activity.nombre,
       unit: amount,
-      quantity: people,
-      subtotal: amount * people,
+      quantity,
+      subtotal: amount * quantity,
       note: activity.aproximado ? activity.nota : note,
       approximate: Boolean(activity.aproximado),
     });
@@ -61,7 +66,7 @@ export function buildQuote({ date, people, activityIds, extraIds = [] }, config)
 
   for (const extra of config.extras) {
     if (!extra.activo || !extraIds.includes(extra.id)) continue;
-    const quantity = extra.tipo === 'porPersona' ? people : 1;
+    const quantity = extra.tipo === 'porPersona' ? attendees || people : 1;
     lines.push({
       kind: 'extra',
       id: extra.id,
@@ -74,11 +79,22 @@ export function buildQuote({ date, people, activityIds, extraIds = [] }, config)
     });
   }
 
+  // Consumo mínimo del evento: lo que no cubren actividades y extras queda
+  // como saldo para consumir en el restaurante.
+  const subtotal = lines.reduce((sum, line) => sum + line.subtotal, 0);
+  const minimumSpend = attendees * (config.consumoMinimoPorAsistente ?? 0);
+  const balance = Math.max(0, minimumSpend - subtotal);
+
   return {
     info,
     lines,
-    total: lines.reduce((sum, line) => sum + line.subtotal, 0),
+    attendees,
+    subtotal,
+    minimumSpend,
+    balance,
+    total: subtotal + balance,
     approximate: lines.some((line) => line.approximate),
+    activityMinutes: activityMinutes(activityIds, config),
     stayMinutes: stayMinutes(activityIds, config),
     needsRoom: onTheHourOnly(activityIds, config),
   };

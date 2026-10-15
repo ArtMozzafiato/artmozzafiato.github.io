@@ -25,10 +25,16 @@ export const config = {
   mesesMaximos: 6,
 
   personas: {
-    minimo: 1,
-    maximo: 60,
-    porDefecto: 8,
+    // Todos los que vienen al evento: niños y adultos.
+    asistentes: { minimo: 1, maximo: 150, porDefecto: 15 },
+    // Personas en cada actividad: se elige por actividad y nunca supera a
+    // los asistentes. porDefecto es el valor inicial al marcarla.
+    participantes: { minimo: 1, maximo: 60, porDefecto: 8 },
   },
+
+  // Consumo promedio por asistente. Asistentes × este valor, menos lo que
+  // suman actividades y extras, es el saldo para consumir en el restaurante.
+  consumoMinimoPorAsistente: 60000,
 
   // Horario del restaurante (formato 24 h). Las horas de inicio se generan
   // solas cada "intervaloMinutos", y la última es la que alcanza a terminar
@@ -38,6 +44,10 @@ export const config = {
     cierre: '22:30',
     intervaloMinutos: 30,
   },
+
+  // Tiempo promedio de celebración después de las actividades: partir la
+  // torta, repartir regalos y compartir. Se suma a la estancia.
+  celebracionMinutos: 120,
 
   // Carrusel que se muestra arriba, apenas el cliente abre el link.
   // Las fotos van en la carpeta public/fotos (verticales 4:5, 900×1125).
@@ -130,6 +140,13 @@ export const config = {
       fotos: [{ src: 'fotos/pablo-1.jpg', alt: 'Pablo de neón con velas volcán, deditos de queso y bebida' }],
     },
   ],
+
+  // Conexión con la hoja "Reservas Mozzafiato" en Google Drive.
+  // Pega aquí la URL de la aplicación web de Apps Script (termina en /exec).
+  // Vacío = la app funciona igual, solo por WhatsApp.
+  reservas: {
+    url: '',
+  },
 
   notaFinal:
     'Esta es una cotización de referencia. La reserva queda confirmada cuando Mozzafiato Pizzería confirme disponibilidad por WhatsApp.',
