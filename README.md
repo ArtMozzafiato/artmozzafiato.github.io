@@ -87,7 +87,8 @@ La primera vez:
 
 1. En GitHub: **Settings → Pages → Build and deployment → Source: GitHub Actions**.
 2. Unir los cambios a la rama `main`.
-3. El link queda en `https://serlifecol-dot.github.io/artmozzafiato/`.
+3. El link queda en `https://artmozzafiato.github.io/` (organización ArtMozzafiato,
+   repositorio `artmozzafiato.github.io`).
 
 Ese es el link que se envía a los clientes.
 
