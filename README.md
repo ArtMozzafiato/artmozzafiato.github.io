@@ -52,6 +52,25 @@ se publica sola en uno o dos minutos.
   para que carguen rápido con datos móviles. Al tocarlas se ven en grande.
 - Usa solo fotos de niños con autorización de sus padres (Ley 1581 de 2012).
 
+## Reservas en Google Drive y Calendar
+
+La hoja **Reservas Mozzafiato** (Google Drive) recibe cada cotización enviada y
+la pone en el Google Calendar del dueño de la hoja:
+
+- Al tocar *Enviar por WhatsApp* se agrega una fila con Estado **Pendiente** y se
+  crea el evento "⏳ Por confirmar" a la hora elegida, con la duración de la estancia.
+- Cambiar el Estado a **Confirmada** marca el evento con ✅; **Cancelada** lo borra.
+- La app no ofrece horas de Art splash con las 2 salas ocupadas por reservas
+  **Confirmadas** de ese día.
+
+Instalación: el código está en [`apps-script/Codigo.gs`](apps-script/Codigo.gs), con
+los pasos al inicio del archivo. La URL de la aplicación web (termina en `/exec`)
+va en `reservas.url` de `public/config.js`. Si está vacía, la app funciona solo
+con WhatsApp.
+
+La URL es pública: cualquiera que la conozca podría enviar filas falsas. Por eso
+las reservas entran como Pendientes y solo las Confirmadas bloquean salas.
+
 ## Línea gráfica
 
 Sigue la identidad de Mozzafiato: fondo negro con textura, dorado del logo

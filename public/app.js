@@ -1,8 +1,9 @@
 import { config } from './config.js';
 import { buildQuote, dayInfo, formatCOP, parseDate, unitPrice } from './pricing.js';
 import { buildMessage, whatsappUrl } from './message.js';
-import { formatDuration, startTimes } from './schedule.js';
+import { formatDuration, startTimes, timeLabel } from './schedule.js';
 import { createCarousel } from './gallery.js';
+import { buildReservation, fullSplashHours, sendReservation } from './reservations.js';
 
 const $ = (selector) => document.querySelector(selector);
 
@@ -183,9 +184,22 @@ function renderDayBadge(date) {
 
 // Las horas dependen de las actividades: Art splash solo en punto y todo
 // debe terminar antes del cierre.
+let splashFull = { date: '', hours: [] };
+
+// Pide a la hoja las horas con salas de Art splash llenas para la fecha elegida.
+async function refreshSplashAvailability() {
+  const dateValue = dateInput.value;
+  const hours = await fullSplashHours(config, dateValue);
+  if (dateInput.value !== dateValue) return; // cambió la fecha mientras tanto
+  splashFull = { date: dateValue, hours };
+  render();
+}
+
 function renderTimes(state) {
   const previous = timeSelect.value;
-  const times = startTimes(state.activityIds, config);
+  const splashChosen = config.actividades.some((a) => a.soloEnPunto && state.activityIds.includes(a.id));
+  const blocked = splashChosen && splashFull.date === dateInput.value ? splashFull.hours : [];
+  const times = startTimes(state.activityIds, config).filter((t) => !blocked.includes(t.value));
   timeSelect.replaceChildren(new Option('Elige una hora', ''));
   for (const { value, label } of times) timeSelect.add(new Option(label, value));
   if (times.some((t) => t.value === previous)) timeSelect.value = previous;
@@ -193,7 +207,10 @@ function renderTimes(state) {
   const hint = $('#time-hint');
   const splash = config.actividades.find((a) => a.soloEnPunto && state.activityIds.includes(a.id));
   hint.hidden = !splash;
-  if (splash) hint.textContent = `${splash.nombre} empieza en punto. ${splash.notaSala}`;
+  if (splash) {
+    hint.textContent = `${splash.nombre} empieza en punto. ${splash.notaSala}` +
+      (blocked.length ? ` Sin sala disponible ese día: ${blocked.map((h) => timeLabel(h)).join(', ')}` : '');
+  }
 }
 
 function renderOptionPrices(state) {
@@ -353,8 +370,25 @@ form.addEventListener('submit', (event) => {
     quote,
     config
   );
+  sendReservation(
+    config,
+    buildReservation(
+      {
+        dateValue: dateInput.value,
+        timeValue: timeSelect.value,
+        birthdayName: $('#birthday-name').value.trim(),
+        birthdayAge: $('#birthday-age').value.trim(),
+        contactName: $('#contact-name').value.trim(),
+        contactPhone: $('#contact-phone').value.trim(),
+        comments: $('#comments').value.trim(),
+      },
+      quote
+    )
+  );
   window.location.href = whatsappUrl(config.negocio.whatsapp, text);
 });
+
+dateInput.addEventListener('change', refreshSplashAvailability);
 
 form.addEventListener('input', (event) => {
   event.target.classList?.remove('invalid');

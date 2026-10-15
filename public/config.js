@@ -137,6 +137,13 @@ export const config = {
     },
   ],
 
+  // Conexión con la hoja "Reservas Mozzafiato" en Google Drive.
+  // Pega aquí la URL de la aplicación web de Apps Script (termina en /exec).
+  // Vacío = la app funciona igual, solo por WhatsApp.
+  reservas: {
+    url: '',
+  },
+
   notaFinal:
     'Esta es una cotización de referencia. La reserva queda confirmada cuando Mozzafiato Pizzería confirme disponibilidad por WhatsApp.',
 };
